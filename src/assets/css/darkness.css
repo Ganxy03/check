@@ -1,0 +1,70 @@
+.dark h2,.dark h3, .dark p {
+    color: #fff;
+}
+
+.dark .topNav {
+    background-color: #121212;
+}
+.dark .topNav .navi li {
+    color: #fff;
+}
+.dark .home {
+    background-color: #121212;
+}
+.dark .home .el-button {
+    background-color: #121212;
+    color: #fff;
+}
+.dark .home .radian {
+    background: none;
+    background-color: #121212;
+}
+.dark .home .function {
+    background-color: #121212;
+}
+.dark .home .function .card .item{
+    background-color: #1e1e1e;
+    color: #ffffff;
+}
+
+.dark .publicFoot {
+    color: #9CA3AF;
+}
+.dark .publicFoot h4 {
+    color: #fff;
+}
+
+.dark .el-drawer__wrapper .el-drawer__body {
+    background-color: #121212;
+}
+.dark .el-menu, .dark .el-submenu .el-submenu__title {
+    background-color: #121212;
+    color: #fff;
+}
+.dark .el-menu .el-submenu__title,.dark .el-menu .el-menu-item {
+    color: #9CA3AF;
+}
+.dark .el-menu-item-group .is-active,.dark .el-menu .is-active {
+    background-color: #1e1e1e;
+    color: #fff;
+}
+
+.dark .login-page .box {
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #fff;
+}
+.dark .login-page .input-group {
+    color: #fff;
+}
+.dark .login-page #btn {
+    color: #fff;
+}
+
+
+.dark .personalPage .container{
+    background-color: #121212;
+}
+
+.dark .userHome .container {
+    background-color: #121212;
+}
