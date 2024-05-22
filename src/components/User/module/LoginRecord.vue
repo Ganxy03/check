@@ -18,6 +18,10 @@
                 地址<i @click="openQuestion" class="el-icon-question"></i>
             </template>
             </el-table-column>
+            <el-table-column
+            prop="isp"
+            label="运营商">
+            </el-table-column>
         </el-table>
     </div>
 </template>
@@ -31,13 +35,13 @@ export default {
         }
     },
     created() {
-        // this.getLoginHistory()
+        this.getLoginHistory()
     },
     methods: {
         getLoginHistory() {
-            const url = '/api//user-account/getLoginHistory'
-            const phone = localStorage.getItem('phone')
-            axios.post(`${url}?phone=${phone}`,{
+            const url = '/api/user/getAllIP'
+            const phone = localStorage.getItem('account')
+            axios.post(`${url}?account=${phone}`,{
                     
                 },
                 {
