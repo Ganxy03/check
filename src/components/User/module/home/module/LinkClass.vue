@@ -2,10 +2,9 @@
     <el-select v-model="value" placeholder="请选择">
       <el-option
         v-for="item in options"
-        :key="item.value"
-        :label="item.label"
-        :value="item.value"
-        :disabled="item.disabled">
+        :key="item.id"
+        :label="item.room"
+        :value="item.room">
       </el-option>
     </el-select>
   </template>
@@ -33,9 +32,16 @@ export default {
             }
         }).then((res) => {
             this.options = res.data;
-            console.log(this.options);
+            // console.log(this.options);
+            let result = res.data.reduce((acc, item) => {
+              if(item.children && item.children.length > 0){
+                acc = acc.concat(item.children);
+              }
+              return acc;
+            }, []);
 
-
+            this.options = result;
+            // console.log(result);
         })
     }
   }
