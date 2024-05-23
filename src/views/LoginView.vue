@@ -1,10 +1,84 @@
 <template>
-<div class="login-page" v-loading.fullscreen.lock="fullscreenLoading">
+<div class="loginPage" v-loading.fullscreen.lock="fullscreenLoading">
+        <div class="mask">
+            <div>
+                <h2 style="font-size: 32px;">Welcome</h2>
+                <h3>欢迎使用！</h3>
+                <img style="border-radius: 50%;width: 260px;" src="@/assets/img/dog.jpg" alt="">
+            </div>
+        </div>
+    <div class="container">
+        <div class="register">
+            <div>
+                <img style="border-radius: 50%;width: 120px;" src="@/assets/img/dog.jpg" alt="">
+                <h2 style="font-size: 32px;">注册</h2>
+                <div class="login-form">
+                    <div class="input-group">
+                        <label>电话号码:</label>
+                        <el-input v-model="enrollForm.account"></el-input>
+                    </div>
+                    <div class="input-group">
+                        <label>密码:</label>
+                        <el-input type="password" v-model="enrollForm.pwd"></el-input>
+                    </div>
+                    <!-- <div class="input-group">
+                        <label>账号类型:</label>
+                        <div style="width: 100%;"> 
+                            <el-button @click="setType(0)">管理员</el-button>
+                            <el-button @click="setType(1)">检查员</el-button>
+                            <el-button @click="setType(2)">维保员</el-button>
+                        </div>
+                    </div> -->
+                    <div class="input-group">
+                        <label >验证码:</label>
+                        <el-input style="width: 80%;" maxlength="4" v-model="enrollForm.verify">
+                            </el-input>
+                            <img style="height: 32px;width: 17%;" :src="yan_picUrl" alt="验证码" />
+                    </div>
+                    <div style="display: flex;justify-content: flex-end;">
+                        <el-button @click="EnrollBtn" id="btn" >注册</el-button>
+                    </div>
+                    <div style="display: flex;justify-content: flex-end;">
+                        <el-button @click="showLoginForm" type="text">去登录</el-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="login">
+            <div>
+                <img style="border-radius: 50%;width: 120px;" src="@/assets/img/dog.jpg" alt="">
+                <h2 style="font-size: 32px;">Login</h2>
+                <div class="login-form">
+                    <div class="input-group">
+                        <label>用户名:</label>
+                        <el-input v-model="loginForm.account"></el-input>
+                    </div>
+                    <div class="input-group">
+                        <label>密码:</label>
+                        <el-input type="password" v-model="loginForm.pwd"></el-input>
+                    </div>
+                    <div class="input-group">
+                        <label >验证码:</label>
+                        <el-input style="width: 80%;" maxlength="4" v-model="loginForm.verify">
+                            </el-input>
+                            <img style="height: 32px;width: 17%;" :src="yan_picUrl" alt="验证码" />
+                    </div>
+                    <div style="display: flex;justify-content: flex-end;">
+                        <el-button @click="loginBtn" id="btn" >登录</el-button>
+                    </div>
+                    <div style="display: flex;justify-content: flex-end;">
+                        <el-button class="toRegister" @click="showRegisterForm" type="text">没有账号?去注册</el-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- <video autoplay loop muted playsinline class="background-video">
     <img src="@/assets/img/110503466_p0_master1200.jpg" alt="">
     </video> -->
 
-    <div class="box">
+    <!-- <div class="box">
         <div class="welcome">
             <div>
                 <h2 style="font-size: 32px;">Welcome</h2>
@@ -14,9 +88,11 @@
         </div>
         <div class="container">
             <div>
+                
+            </div>
+            <div>
                 <img style="border-radius: 50%;width: 120px;" src="@/assets/img/dog.jpg" alt="">
                 <h2 style="font-size: 32px;">Login</h2>
-                <!-- <el-button @click="testAccount" type="text">测试账号</el-button> -->
                 <div class="login-form">
                     <div class="input-group">
                         <label>用户名:</label>
@@ -35,10 +111,13 @@
                         </div>
                     </div>
                     <button @click="loginBtn" id="btn" >登录</button>
+                    <div style="display: flex;justify-content: flex-end;">
+                        <el-button @click="showRegisterForm" type="text">没有账号?去注册</el-button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 </div>
 </template>
 
@@ -50,6 +129,12 @@ export default {
             loginForm: {
                 account: '',
                 pwd: '',
+                verify: ''
+            },
+            enrollForm: {
+                account: '',
+                pwd: '',
+                type: '2',
                 verify: ''
             },
             yan_picUrl: '',
@@ -64,6 +149,64 @@ export default {
         }
     },
     methods: {
+        showLoginForm() {
+            const welcomeBox = document.querySelector('.mask');
+            welcomeBox.style.animation = 'moveLeft 1s forwards';
+        },
+        showRegisterForm() {
+            const welcomeBox = document.querySelector('.mask');
+            welcomeBox.style.animation = 'moveRight 1s forwards';
+        },
+        setType(value) {
+        this.enrollForm.type = value;
+        
+        },
+        EnrollBtn(){
+            if(this.enrollForm.account == '') {
+                this.$message({
+                    message: '请输入用户名',
+                    type: 'warning'
+                })
+                return
+            } else if(this.enrollForm.pwd == '') {
+                this.$message({
+                    message: '请输入密码',
+                    type: 'warning'
+                })
+                return
+            } else if(this.enrollForm.verify == '') {
+                this.$message({
+                    message: '请输入验证码',
+                    type: 'warning'
+                })
+                return
+            } else if(this.enrollForm.verify != this.yan_captcha) {
+                this.enrollForm.verify = ''
+                this.generateCaptcha()
+                this.$message({
+                    message: '验证码错误',
+                    type: 'warning'
+                })
+                return
+            }
+            else{
+                const url = '/api/user/create'
+                axios.post(`${url}?account=${this.enrollForm.account}&pwd=${this.enrollForm.pwd}&type=${this.enrollForm.type}`, {}, {
+                    headers: {
+                        'verifyCode': '2024'
+                    }
+                }).then((res) => {
+                    if(res.status == 200) {
+                        this.$message({
+                            message: '注册成功',
+                            type: 'success'
+                        })
+                        // this.$router.push('/login')
+                        location.reload(); 
+                    }
+                })
+            }
+        },
         loginBtn() {
             if(this.loginForm.account == '') {
                 this.$message({
@@ -187,7 +330,7 @@ export default {
 </script>
 
 <style>
-.login-page {
+.loginPage {
     position: relative;
     width: 100%;
     height: calc(100vh - 64px);
@@ -196,11 +339,58 @@ export default {
     align-items: center;
     background: url(@/assets/img/110503466_p0_master1200.jpg) 50% no-repeat;
     background-size: cover;
+    position: relative;
 }
-.login-page h2, .login-page h3 {
+
+.loginPage .mask {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(138, 176, 194);
+    z-index: 999;
+    width: 30%;
+    height: 60vh;
+    position: absolute;
+    left: 20%;
+    border-radius: 10px;
+}
+
+.loginPage .container {
+    width: 60%;
+    height: 60vh;
+    display: flex;
+    background-color: rgba(255, 255, 255, 0.4);
+    border-radius: 10px;
+}
+
+.loginPage .register,.loginPage .login {
+    width: 50%;
+    height: 60vh;
+}
+.loginPage .register {
+    /* background-color: blueviolet; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.loginPage .login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* background-color: aliceblue; */
+}
+.loginPage .input-group {
+    display: flex;
+    margin: 6px 0;
+}
+.loginPage .input-group label {
+    width: 120px;
+}
+/* .login-page h2, .login-page h3 {
     margin: 6px 0 6px 0 ;
-}
-.login-page .background-video {
+} */
+/* .login-page .background-video {
     position: fixed;
     top: 0;
     left: 0;
@@ -215,12 +405,14 @@ export default {
     position: relative;
     display: flex;
     overflow-y: auto;
-}
-.login-page .welcome {
-    width: 50%;background-color: rgba(40, 191, 202, 0.6);color: #000;display: flex;align-items: center;justify-content: center;
+} */
+/* .login-page .welcome {
+    width: 50%;background-color: rgba(40, 191, 202, 1);
+    color: #000;display: flex;align-items: center;justify-content: center;
     height: 100%;
-}
-.login-page .container {
+    z-index: 999;
+} */
+/* .login-page .container {
     width: calc(50% - 48px);
     min-height: 60vh;
     color: #000;
@@ -272,5 +464,38 @@ cursor: pointer;
     .login-page .container {
         width: calc(100% - 48px);
     }
+} */
+@media screen and (max-width: 976px) {
+    .loginPage .container {
+        width: 90%;
+    }
+    .loginPage .register {
+        display: none;
+    }
+    .loginPage .login {
+        width: 100%;
+    }
+    .loginPage .toRegister {
+        display: none;
+    }
+    .loginPage .mask {
+        display: none;
+    }
+}
+@keyframes moveLeft {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes moveRight {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
 }
 </style>

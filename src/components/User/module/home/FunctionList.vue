@@ -13,7 +13,12 @@
 </template>
 <script>
 import axios from 'axios';
+import LinkClass from './module/LinkClass.vue'
 export default {
+    components: {
+        // eslint-disable-next-line
+        LinkClass
+    },
     data() {
         return {
             FunctionList: [
@@ -40,6 +45,12 @@ export default {
                     icon: 'icon-manager',
                     color: '#AA53F2',
                     url: '/manager'
+                },
+                {
+                    name: '关联',
+                    icon: 'icon-relevance',
+                    color: '#5FC5ED',
+                    url: '/relevance'
                 }
             ],
             role: ''
@@ -64,6 +75,33 @@ export default {
                 }
             })
         },
+        openLinkDialog() {
+            const h = this.$createElement;
+            this.$msgbox({
+                title: '消息',
+                message: h('p', null, [
+                    // h('span', null, '内容可以是 '),
+                    // h('i', { style: 'color: teal' }, 'VNode')
+                    h(LinkClass),
+                ]),
+                showCancelButton: true,
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                // eslint-disable-next-line
+                beforeClose: (action, instance, done) => {
+                    if (action === 'confirm' || action === 'cancel') {
+                        // done();
+                        this.$msgbox.close();
+                    }
+                }
+            })
+            // .then(action => {
+            //     // this.$message({
+            //     //     type: 'info',
+            //     //     message: 'action: ' + action
+            //     // });
+            // });
+        },
         LinkTo(url) {
             
             console.log(this.role)
@@ -73,6 +111,8 @@ export default {
                 this.$router.push(url)
             } else if(url == '/manager' && this.role == 0) {
                 this.$router.push(url)
+            }  else if(url == '/relevance' && this.role == 0) {
+                this.openLinkDialog()
             } else {
                 this.$message({
                     message: '权限不足',
@@ -88,6 +128,7 @@ export default {
             //     type: 'warning'
             // })
         }
+        
     }
 }
 </script>
@@ -101,6 +142,9 @@ export default {
 }
 .icon-manager {
     background: url(@/assets/img/icon/管理.png) 50% no-repeat;
+}
+.icon-relevance{
+    background: url(@/assets/img/icon/关联.png) 50% no-repeat;
 }
 
 
