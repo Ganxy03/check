@@ -14,12 +14,23 @@
                 <h2 style="font-size: 32px;">注册</h2>
                 <div class="login-form">
                     <div class="input-group">
-                        <label>电话号码:</label>
+                        <label>手机号:</label>
                         <el-input v-model="enrollForm.account"></el-input>
                     </div>
                     <div class="input-group">
                         <label>密码:</label>
-                        <el-input type="password" v-model="enrollForm.pwd"></el-input>
+                        <el-input type="password" v-model="enrollForm.pwd" show-password></el-input>
+                    </div>
+                    <div class="input-group">
+                        <label>邮箱:</label>
+                        <el-input v-model="enrollForm.mail">
+                            <template slot="append"><span @click="getYan">获取验证码</span></template>
+                        </el-input>
+                        
+                    </div>
+                    <div class="input-group">
+                        <label>邮箱验证码:</label>
+                        <el-input v-model="enrollForm.mailverify"></el-input>
                     </div>
                     <!-- <div class="input-group">
                         <label>账号类型:</label>
@@ -129,8 +140,11 @@ export default {
             loginForm: {
                 account: '',
                 pwd: '',
-                verify: ''
+                verify: '',
+                mail: '',
+                mailverify: ''
             },
+            
             enrollForm: {
                 account: '',
                 pwd: '',
@@ -152,6 +166,7 @@ export default {
         showLoginForm() {
             const welcomeBox = document.querySelector('.mask');
             welcomeBox.style.animation = 'moveLeft 1s forwards';
+            // console.log(this.loginForm.mail)
         },
         showRegisterForm() {
             const welcomeBox = document.querySelector('.mask');
@@ -267,6 +282,66 @@ export default {
                 
             }
         },
+        getYan(){
+            localStorage.setItem('mail', this.enrollForm.mail);
+            const h = this.$createElement;
+            this.$msgbox({
+            title: '你的邮箱是',
+            message: h('p', localStorage.mail, [
+                h('span',localStorage.mail, '内容可以是 '),
+                h('i', { style: 'color: teal' }, 'VNode')
+            ]),
+            showCancelButton: true,
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            beforeClose: (action, instance, done) => {
+                if (action === 'success') {
+                instance.confirmButtonLoading = true;
+                instance.confirmButtonText = '执行中...';
+                setTimeout(() => {
+                    done();
+                    setTimeout(() => {
+                    instance.confirmButtonLoading = false;
+                    }, 300);
+                }, 3000);
+                } else {
+                done();
+                }
+            }
+            }).then(() =>{
+                const url = '/api/mail/send'
+                axios.post(`${url}?mail=${this.enrollForm.mail}&pwd=${this.enrollForm.mailverify}`, {}, {
+                    headers: {
+                        'verifyCode': '2024'
+                    }
+                }).then(res => {
+                    if (res.status == 200) {
+                    this.$message({
+                        message: '邮件发送成功',
+                        type: 'success',
+                    });
+            }
+                })
+            }
+                
+            );
+        },
+        verifymail() {
+        const url='/api/mail/verify';
+        axios.post(`${url}?mail=${localStorage.mail}`,{},{
+            headers: {
+                'verifyCode': '2024'
+            }
+        }).then((res) => {
+            if (res.status == 200) {
+                    this.$message({
+                        message: '',
+                        type: 'success',
+                    });
+            }
+            
+        })
+    },
         testAccount() {
             this.loginForm.account = 'admin'
             this.loginForm.pwd = '@inc123456.'
