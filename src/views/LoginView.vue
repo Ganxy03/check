@@ -40,12 +40,12 @@
                             <el-button @click="setType(2)">维保员</el-button>
                         </div>
                     </div> -->
-                    <div class="input-group">
+                    <!-- <div class="input-group">
                         <label >验证码:</label>
                         <el-input style="width: 80%;" maxlength="4" v-model="enrollForm.verify">
                             </el-input>
                             <img style="height: 32px;width: 17%;" :src="yan_picUrl" alt="验证码" />
-                    </div>
+                    </div> -->
                     <div style="display: flex;justify-content: flex-end;">
                         <el-button @click="EnrollBtn" id="btn" >注册</el-button>
                     </div>
@@ -133,7 +133,8 @@
 </template>
 
 <script>
-import axios from 'axios'
+import axios from 'axios';
+import verifymail from '../components/User/module/home/module/VerifyMail.vue'
 export default {
     data() {
         return {
@@ -189,21 +190,7 @@ export default {
                     type: 'warning'
                 })
                 return
-            } else if(this.enrollForm.verify == '') {
-                this.$message({
-                    message: '请输入验证码',
-                    type: 'warning'
-                })
-                return
-            } else if(this.enrollForm.verify != this.yan_captcha) {
-                this.enrollForm.verify = ''
-                this.generateCaptcha()
-                this.$message({
-                    message: '验证码错误',
-                    type: 'warning'
-                })
-                return
-            }
+            } 
             else{
                 const url = '/api/user/create'
                 axios.post(`${url}?account=${this.enrollForm.account}&pwd=${this.enrollForm.pwd}&type=${this.enrollForm.type}`, {}, {
@@ -235,6 +222,7 @@ export default {
                     type: 'warning'
                 })
                 return
+            
             } else if(this.loginForm.verify == '') {
                 this.$message({
                     message: '请输入验证码',
@@ -282,49 +270,80 @@ export default {
                 
             }
         },
-        getYan(){
-            localStorage.setItem('mail', this.enrollForm.mail);
+        getMessBox() {
             const h = this.$createElement;
             this.$msgbox({
-            title: '你的邮箱是',
-            message: h('p', localStorage.mail, [
-                h('span',localStorage.mail, '内容可以是 '),
-                h('i', { style: 'color: teal' }, 'VNode')
+            title: '图片验证',
+            message: h('p', null, [
+                h(verifymail)
             ]),
             showCancelButton: true,
             confirmButtonText: '确定',
             cancelButtonText: '取消',
+            // eslint-disable-next-line
             beforeClose: (action, instance, done) => {
-                if (action === 'success') {
-                instance.confirmButtonLoading = true;
-                instance.confirmButtonText = '执行中...';
-                setTimeout(() => {
-                    done();
-                    setTimeout(() => {
-                    instance.confirmButtonLoading = false;
-                    }, 300);
-                }, 3000);
-                } else {
-                done();
-                }
-            }
-            }).then(() =>{
-                const url = '/api/mail/send'
-                axios.post(`${url}?mail=${this.enrollForm.mail}&pwd=${this.enrollForm.mailverify}`, {}, {
+                if(action == 'confirm') {
+                    if(localStorage.getItem('verify') === null || localStorage.getItem('verify') === '') {
+                    this.$message({
+                        message: '请输入验证码',
+                        type: 'warning'
+                    })
+                    return
+                } 
+                else if (localStorage.getItem('code') == localStorage.getItem('verify')) {
+                // this.enrollForm.verify = ''
+                // this.generateCaptcha()
+                    // console.log(localStorage.getItem('verify'))
+                    localStorage.removeItem('code')
+                    localStorage.removeItem('verify')
+                    const url = '/api/mail/send'
+                    axios.post(`${url}?mail=${localStorage.getItem('mail')}`, {}, {
                     headers: {
                         'verifyCode': '2024'
                     }
-                }).then(res => {
-                    if (res.status == 200) {
-                    this.$message({
-                        message: '邮件发送成功',
-                        type: 'success',
-                    });
-            }
+                }).then((res) => {
+                    if(res.status == 200) {
+                        this.$message({
+                            message: '发送成功',
+                            type: 'success'
+                        })
+                    }
+                    this.$msgbox.close()
                 })
-            }
-                
-            );
+                    return
+                }  else if(localStorage.getItem('verify') != this.yan_captcha) {
+                    this.enrollForm.verify = ''
+                    // this.generateCaptcha()
+                    // console.log(this.yan_captcha)
+                    this.$message({
+                        message: '验证码错误',
+                        type: 'warning' 
+                    })
+                    return
+                }
+                } else if(action == 'cancel') {
+                        this.$msgbox.close()
+                    }
+                }
+            })
+        },
+        getYan(){
+            localStorage.setItem('mail', this.enrollForm.mail);
+            this.$confirm(localStorage.getItem('mail'), '你的邮箱是', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                // type: 'warning',
+                callback: action => {
+                    if(action == 'confirm') {
+                        this.getMessBox()
+                    }
+                }
+            }).then(() => {
+                this.$message({
+                    type: 'success',
+                    message: '删除成功!'
+                })
+            });
         },
         verifymail() {
         const url='/api/mail/verify';
@@ -334,10 +353,10 @@ export default {
             }
         }).then((res) => {
             if (res.status == 200) {
-                    this.$message({
-                        message: '',
-                        type: 'success',
-                    });
+                this.$message({
+                    message: '',
+                    type: 'success',
+                });
             }
             
         })

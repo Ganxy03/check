@@ -1,143 +1,135 @@
 <template>
-    <div v-loading.fullscreen.lock="fullscreenLoading">
-        <el-select style="float: left;" v-model="selectDate" placeholder="请选择">
+    <div  v-loading.fullscreen.lock="fullscreenLoading">
+        <el-select style="float: left;" v-model="selectValue" placeholder="请选择">
             <el-option
-            v-for="item in SelectDate"
+            v-for="item in option"
             :key="item.value"
             :label="item.label"
             :value="item.value">
             </el-option>
         </el-select>
-        <el-button @click="openNewAccountDialog" style="float: right;" size="mini">添加</el-button>
+        <el-button  @click="openNewAccountDialog"  style="float: right;" size="mini">添加</el-button>
         <el-table
-            :data="filteredTableData"
+            :data="userInfo"
             height="70vh">
             <el-table-column
-            prop="userInfo.name"
+            prop="name"
             label="姓名">
             </el-table-column>
             <el-table-column
-            prop="userInfo.sno"
-            label="学号">
+            prop="mail"
+            label="邮箱">
             </el-table-column>
             <el-table-column
-            prop="userInfo.belong"
-            label="班级">
+            prop="sex"
+            label="性别">
             </el-table-column>
             <el-table-column
-            prop="userInfo.phone"
+            prop="role"
+            label="身份"
+            :formatter="roleFormatter">
+            </el-table-column>
+            <el-table-column
+            prop="account"
             label="手机号">
             </el-table-column>
             <el-table-column>
             <template slot="header">
                 操作<i @click="openQuestion" class="el-icon-question"></i>
             </template>
-            <template slot-scope="scope">
+            <!-- <template slot-scope="scope">
                 <div v-if="scope.row.userAccount.status == 0">
-                    <el-button @click="dismissBtn(scope.row)" style="width: 100%;text-align: center;padding: 0;margin: 0;" type="text">辞离</el-button>
-                    <el-button @click="UpdateBtn(scope.row)" style="width: 100%;text-align: center;padding: 0;margin: 0;" type="text">修改</el-button>
-                    <el-button @click="resetPwd(scope.row)" style="width: 100%;text-align: center;padding: 0;margin: 0;" type="text">重置密码</el-button>
+                    <el-button style="width: 100%;text-align: center;padding: 0;margin: 0;" type="text">辞离</el-button>
+                    <el-button  style="width: 100%;text-align: center;padding: 0;margin: 0;" type="text">修改</el-button>
+                    <el-button  style="width: 100%;text-align: center;padding: 0;margin: 0;" type="text">重置密码</el-button>
                 </div>
                 <div v-else>
-                    <el-button @click="Recover(scope.row)" style="width: 100%;text-align: center;padding: 0;margin: 0;" type="text">恢复</el-button>
+                    <el-button  style="width: 100%;text-align: center;padding: 0;margin: 0;" type="text">恢复</el-button>
                 </div>
+            </template> -->
+            <template slot-scope="scope">
+                <el-button @click="dismissBtn(scope.row)" type="text" size="small">辞离</el-button>
+                <el-button @click="UpdateBtn(scope.row)"  type="text" size="small">修改</el-button>
+                <el-button  @click="resetPwd(scope.row)" type="text" size="small">重置密码</el-button>
             </template>
             </el-table-column>
         </el-table>
-
-        <el-dialog title="添加成员" :visible.sync="NewAccountDialog">
-            <el-form :model="newMemberForm" label-width="80px">
+        <el-dialog :close-on-click-modal="false" title="修改信息" :visible.sync="UpdateAccountDialog">
+            <el-form :model="currentData" label-width="80px">
                 <el-form-item label="姓名">
-                    <el-input maxlength="5" placeholder="请输入姓名" v-model="newMemberForm.name"></el-input>
+                    <el-input v-model="currentData.name" maxlength="5" placeholder="请输入姓名"></el-input>
                 </el-form-item>
                 <el-form-item label="性别">
-                    <el-radio v-model="newMemberForm.sex" label="男">男</el-radio>
-                    <el-radio v-model="newMemberForm.sex" label="女">女</el-radio>
+                    <el-radio v-model="currentData.sex" label="男">男</el-radio>
+                    <el-radio v-model="currentData.sex" label="女">女</el-radio>
                 </el-form-item>
                 <el-form-item label="学号">
-                    <el-input maxlength="13" placeholder="请输入学号" v-model="newMemberForm.sno"></el-input>
+                    <el-input v-model="currentData.mail" maxlength="13" placeholder="请输入学号"></el-input>
                 </el-form-item>
-                <el-form-item label="班级">
-                    <el-select v-model="newMemberForm.belong" placeholder="xx级xx专业xx班" filterable>
-                        <el-option :label="item.label" :value="item.value" v-for="item in options" :key="item.value"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="手机">
-                    <el-input maxlength="11" placeholder="请输入手机" v-model="newMemberForm.phone"></el-input>
+                <el-form-item label="手机号">
+                    <el-input v-model="currentData.account" maxlength="11" placeholder="请输入手机号"></el-input>
                     <p style="font-size: 11px;margin: 0;height: 20px;line-height: 20px;">注意: 手机将做为登陆的账号 请务必准确</p>
                 </el-form-item>
-                <div style="display: flex;justify-content: end;">
-                    <el-button @click="finishBtn">完成</el-button>
-                </div>
-            </el-form>
-        </el-dialog>
-
-        <el-dialog title="确认信息" :visible.sync="EnsureAccountDialog">
-            <el-form :model="tempMemberForm" label-width="80px">
-                <el-form-item label="姓名">
-                    <el-input disabled maxlength="5" placeholder="请输入姓名" v-model="tempMemberForm.name"></el-input>
-                </el-form-item>
-                <el-form-item label="性别">
-                    <el-radio disabled v-model="tempMemberForm.sex" label="男">男</el-radio>
-                    <el-radio disabled v-model="tempMemberForm.sex" label="女">女</el-radio>
-                </el-form-item>
-                <el-form-item label="学号">
-                    <el-input disabled maxlength="13" placeholder="请输入学号" v-model="tempMemberForm.sno"></el-input>
-                </el-form-item>
-                <el-form-item label="班级">
-                    <el-select disabled v-model="tempMemberForm.belong" placeholder="xx级xx专业xx班" filterable>
-                        <el-option :label="item.label" :value="item.value" v-for="item in options" :key="item.value"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="手机">
-                    <el-input disabled maxlength="11" placeholder="请输入手机" v-model="tempMemberForm.phone"></el-input>
-                    <p style="font-size: 11px;margin: 0;height: 20px;line-height: 20px;">注意: 手机将做为登陆的账号 请务必准确</p>
+                <el-form-item label="身份">
+                    <el-tag type="warning" v-if="currentData.role == 0">管理员</el-tag>
+                    <el-tag v-if="currentData.role == 1">检查员</el-tag>
+                    <el-tag type="success" v-if="currentData.role == 2">维保员</el-tag>
                 </el-form-item>
                 <div style="display: flex;justify-content: end;">
-                    <el-button @click="cancelBtn">取消</el-button>
-                    <el-button @click="ensureBtn">确认</el-button>
-                </div>
-            </el-form>
-        </el-dialog>
-
-        <el-dialog title="修改信息" :visible.sync="UpdateAccountDialog">
-            <el-form :model="CurrentAccount" label-width="80px">
-                <el-form-item label="姓名">
-                    <el-input :disabled="UpdateClock" maxlength="5" placeholder="请输入姓名" v-model="CurrentAccount.name"></el-input>
-                </el-form-item>
-                <el-form-item label="性别">
-                    <el-radio :disabled="UpdateClock" v-model="CurrentAccount.sex" label="男">男</el-radio>
-                    <el-radio :disabled="UpdateClock" v-model="CurrentAccount.sex" label="女">女</el-radio>
-                </el-form-item>
-                <el-form-item label="学号">
-                    <el-input :disabled="UpdateClock" maxlength="13" placeholder="请输入学号" v-model="CurrentAccount.sno"></el-input>
-                </el-form-item>
-                <el-form-item label="班级">
-                    <el-select :disabled="UpdateClock" v-model="CurrentAccount.belong" placeholder="xx级xx专业xx班" filterable>
-                        <el-option :label="item.label" :value="item.value" v-for="item in options" :key="item.value"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="手机">
-                    <el-input :disabled="UpdateClock" maxlength="11" placeholder="请输入手机" v-model="CurrentAccount.phone"></el-input>
-                    <p style="font-size: 11px;margin: 0;height: 20px;line-height: 20px;">注意: 手机将做为登陆的账号 请务必准确</p>
-                </el-form-item>
-                <div style="display: flex;justify-content: end;">
-                    <el-button @click="unLock">
+                    <!-- <el-button @click="unLock">
                         <span v-if="UpdateClock">解锁</span>
                         <span v-else>上锁</span>
-                    </el-button>
-                    <el-button @click="reSureBtn">确认</el-button>
+                    </el-button> -->
+                    <el-button @click="CurrentAndData">确认</el-button>
+                </div>
+            </el-form>
+        </el-dialog>
+        <el-dialog title="添加成员" :visible.sync="NewAccountDialog">
+            <el-form :model="AddMember"  label-width="80px">
+                <el-form-item label="姓名">
+                    <el-input maxlength="5" v-model="AddMember.name" placeholder="请输入姓名" ></el-input>
+                </el-form-item>
+                <el-form-item label="性别">
+                    <el-radio v-model="AddMember.sex" label="男">男</el-radio>
+                    <el-radio v-model="AddMember.sex" label="女">女</el-radio>
+                </el-form-item>
+                <el-form-item label="邮箱">
+                    <el-input v-model="AddMember.mail" maxlength="13" placeholder="请输入邮箱" ></el-input>
+                </el-form-item>
+                <!-- <el-form-item label="身份"> -->
+                    <!-- <el-select placeholder="xx级xx专业xx班" filterable>
+                        <el-option :label="item.label" :value="item.value" v-for="item in options" :key="item.value"></el-option>
+                    </el-select> -->
+                    <!-- <el-checkbox-group v-model="checkedRoles">
+                        <el-checkbox style="margin: 0 15px;" label="管理员">管理员</el-checkbox>
+                        <el-checkbox style="margin: 0 15px;" label="检查员">检查员</el-checkbox>
+                        <el-checkbox style="margin: 0 15px;" label="维保员">维保员</el-checkbox>
+                    </el-checkbox-group> -->
+                    <!-- <el-input maxlength="13" placeholder="请输入班级" ></el-input> -->
+                <!-- </el-form-item> -->
+                <el-form-item label="身份">
+                    <el-radio v-model="AddMember.type" label="0">管理员</el-radio>
+                    <el-radio v-model="AddMember.type" label="1">检查员</el-radio>
+                    <el-radio v-model="AddMember.type" label="2">维保员</el-radio>
+                </el-form-item>
+                <el-form-item label="手机号">
+                    <el-input maxlength="11" v-model="AddMember.account" placeholder="请输入手机号" ></el-input>
+                    <p style="font-size: 11px;margin: 0;height: 20px;line-height: 20px;">注意: 手机将做为登陆的账号 请务必准确</p>
+                </el-form-item>
+                <div style="display: flex;justify-content: end;">
+                    <el-button @click="AddMem">完成</el-button>
                 </div>
             </el-form>
         </el-dialog>
     </div>
 </template>
 <script>
-import axios from 'axios'
-export default {
-    data() {
-        return {
-            SelectDate: [
+import axios from 'axios';
+export default{
+    data(){
+        return{
+            selectValue: '',
+            option: [
                 {
                     label: '在职',
                     value: 0
@@ -147,59 +139,62 @@ export default {
                     value: 1
                 }
             ],
-            selectDate: 0,
-            AllAccount: [],
-            CurrentAccount: [],
-            NewAccountDialog: false,
-            EnsureAccountDialog: false,
-            UpdateAccountDialog: false,
-            UpdateClock: true,
-            newMemberForm: {},
-            tempMemberForm: {},
-            options: [
-                {
-                    label: '22级计应3班',
-                    value: '22级计应3班'
-                },
-                {
-                    label: '22级计应2班',
-                    value: '22级计应2班'
-                },
-                {
-                    label: '22级计应1班',
-                    value: '22级计应1班'
-                }
+            userInfo:[
+                
             ],
-            fullscreenLoading: false
+            fullscreenLoading: false,
+            UpdateAccountDialog: false,
+            currentData: [],
+            NewAccountDialog:false,
+            AddMember:{
+                    name:'',
+                    sex:'',
+                    mail:'',
+                    account:'',
+                    type:'',
+                    pwd:'inc123456'
+                },
+            checkedRoles: [],
+           
+            // options: [
+            //     {
+            //         label: '22级计应3班',
+            //         value: '22级计应3班'
+            //     },
+            //     {
+            //         label: '22级计应2班',
+            //         value: '22级计应2班'
+            //     },
+            //     {
+            //         label: '22级计应1班',
+            //         value: '22级计应1班'
+            //     }
+            // ],
         }
-    },
-    computed: {
-        filteredTableData() {
-            return this.AllAccount.filter(item => item.userAccount.status === this.selectDate);
-        },
+        
     },
     created() {
-        // this.getAllAccount()
+        this.getAllAccount()
     },
-    methods: {
-        getAllAccount() {
-            this.fullscreenLoading = true;
-            const url = '/api/user-account/getAllAccount'
-            axios.post(url,{
-
-                },
-                {
+    methods:{
+        UpdateBtn(row) {
+            // console.log(row)
+            this.UpdateAccountDialog = true
+            this.currentData = row
+        },
+        getAllAccount(){
+            // this.fullscreenLoading = true;
+            const url = '/api/manager/getAllAccount'
+            axios.post(url,{},{
                 headers: {
                     'verifyCode': '2024'
                 }
             }).then((res) => {
                 if(res.status == 200) {
-                    // console.log(res)
-                    this.AllAccount = res.data
+                    this.userInfo = res.data
+                    // console.log(this.userInfo)
                 }
-            }).finally(() => {
-                this.fullscreenLoading = false;
-            });
+            })
         },
         openQuestion() {
             this.$alert('<p style="text-indent: 2em;font-size: 16px;"><strong>辞离:</strong> 该操作将使用户账号显示注销状态 影响任务派发和打卡</p><p style="text-indent: 2em;font-size: 16px;"><strong>修改:</strong> 修改用户账号信息</p><p style="text-indent: 2em;font-size: 16px;"><strong>重置:</strong> 重置的初始密码为 <i>inc123456</i></p>', '操作', {
@@ -207,182 +202,6 @@ export default {
                 callback: action => {
                     if(action == 'confirm' || action == 'cancel') {
                         // console.log(action)
-                    }
-                }
-            });
-        },
-        openNewAccountDialog() {
-            this.NewAccountDialog = true
-        },
-        finishBtn() {
-            if(this.newMemberForm.name == null) {
-                this.$message({
-                    message: '名字没写',
-                    type: 'warning'
-                })
-                return
-            } else if(this.newMemberForm.sex == null) {
-                this.$message({
-                    message: '性别没写',
-                    type: 'warning'
-                })
-                return
-            } else if(this.newMemberForm.sno == null) {
-                this.$message({
-                    message: '学号没写',
-                    type: 'warning'
-                })
-                return
-            } else if(this.newMemberForm.belong == null) {
-                this.$message({
-                    message: '班级没写',
-                    type: 'warning'
-                })
-                return
-            } else if(this.newMemberForm.phone == null) {
-                this.$message({
-                    message: '手机没写',
-                    type: 'warning'
-                })
-                return
-            } else {
-                // console.log(this.newMemberForm)
-                this.NewAccountDialog = false
-
-                this.tempMemberForm = this.newMemberForm
-                this.EnsureAccountDialog = true
-            }
-        },
-        cancelBtn() {
-            this.EnsureAccountDialog = false
-            this.NewAccountDialog = false
-            this.UpdateClock = true
-        },
-        ensureBtn() {
-            if(this.UpdateClock == false) {
-                this.$confirm('确定修改该用户信息?', '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    type: 'warning',
-                    callback: action => {
-                        if(action == 'confirm') {
-                            // console.log(this.newMemberForm)
-                            console.log(this.tempMemberForm)
-                            // const url = 'http://localhost:24221/api/user-account/newAccount';
-                            // /user-account/newAccount
-                            const url = '/api/user-account/updateInfo'
-                            axios.post(url, this.tempMemberForm, {
-                                headers: {
-                                    'verifyCode': '2024',
-                                    'Accept': 'application/json',
-                                    'Content-Type': 'application/json'
-                                }
-                            }).then((res) => {
-                                if(res.status == 200) {
-                                    // console.log(res)
-                                    this.$message({
-                                        message: '更新成功',
-                                        type: 'success'
-                                    })
-                                    this.EnsureAccountDialog = false
-                                    this.UpdateAccountDialog = false
-                                    this.UpdateClock = true
-                                    this.getAllAccount()
-                                }
-                            }).catch((error) => {
-                                // 请求失败时的处理逻辑
-                                console.error(error);
-                            });
-
-                        }
-                    }
-                });
-                return
-            }
-            this.$confirm('确定注册该用户信息?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning',
-                callback: action => {
-                    if(action == 'confirm') {
-                        // console.log(this.newMemberForm)
-                        // const url = 'http://localhost:24221/api/user-account/newAccount';
-                        // /user-account/newAccount
-                        const url = '/api/user-account/newAccount'
-                        axios.post(url, this.tempMemberForm, {
-                            headers: {
-                                'verifyCode': '2024',
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json'
-                            }
-                        }).then((res) => {
-                            if(res.status == 200) {
-                                // console.log(res)
-                                this.$message({
-                                    message: '添加成功',
-                                    type: 'success'
-                                })
-                                this.EnsureAccountDialog = false
-                                this.getAllAccount()
-                            }
-                        }).catch((error) => {
-                            // 请求失败时的处理逻辑
-                            console.error(error);
-                        });
-
-                    }
-                }
-            });
-        },
-        UpdateBtn(row) {
-            // console.log(row)
-            this.UpdateAccountDialog = true
-            this.CurrentAccount = row.userInfo
-        },
-        unLock() {
-            this.UpdateClock = !this.UpdateClock
-        },
-        reSureBtn() {
-            // console.log(this.CurrentAccount)
-            if(this.UpdateClock == true) {
-                this.$message({
-                    message: '先解锁',
-                    type: 'warning'
-                })
-                return
-            }
-            this.tempMemberForm = this.CurrentAccount
-            this.EnsureAccountDialog = true
-        },
-        Recover(row) {
-            // console.log(row)
-            this.$confirm('此操作将恢复该用户, 是否继续?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning',
-
-                callback: action => {
-                    if(action == 'confirm') {
-                        const url = '/api/user-account/recover'
-                        const phone = row.userInfo.phone
-                        axios.post(`${url}?phone=${phone}`,{
-        
-                            },
-                            {
-                            headers: {
-                                'verifyCode': '2024'
-                            }
-                        }).then((res) => {
-                            if(res.status == 200) {
-                                // console.log(res)
-                                
-                                this.$message({
-                                    type: 'success',
-                                    message: '恢复成功!'
-                                });
-                                this.getAllAccount()
-                            }
-                        })
                     }
                 }
             });
@@ -396,9 +215,11 @@ export default {
 
                 callback: action => {
                     if(action == 'confirm') {
-                        const url = '/api/user-account/signOut'
-                        const phone = row.userInfo.phone
-                        axios.post(`${url}?phone=${phone}`,{
+                        const url = '/api/manager/delete'
+                        // const account = row.account
+                        // console.log(row.account)
+                        // console.log(row.userInfo.account)
+                        axios.post(`${url}?account=${row.account}`,{
         
                             },
                             {
@@ -407,8 +228,7 @@ export default {
                             }
                         }).then((res) => {
                             if(res.status == 200) {
-                                // console.log(res)
-                                
+                                console.log(res)
                                 this.$message({
                                     type: 'success',
                                     message: '辞离成功!'
@@ -429,9 +249,9 @@ export default {
 
                 callback: action => {
                     if(action == 'confirm') {
-                        const url = '/api/user-account/resetPwd'
-                        const phone = row.userInfo.phone
-                        axios.post(`${url}?phone=${phone}`,{
+                        const url = '/api/manager/resetPwd'
+                        // const phone = row.userInfo.phone
+                        axios.post(`${url}?account=${row.account}`,{
         
                             },
                             {
@@ -452,15 +272,117 @@ export default {
                     }
                 }
             });
+        },
+    roleFormatter(row, column, cellValue) {
+        if (cellValue === 0) {
+        return '管理员';
+        } else if (cellValue === 1) {
+        return '检查员';
+        }else if (cellValue === 2) {
+        return '维保员';
+        }else{
+            return cellValue;
         }
+    },
+    CurrentAndData(){
+        if (this.currentData === this.userInfo) {
+            this.$message({
+                type: 'success',
+                message: '取消成功！'
+            });
+            return;
+        } else if (this.currentData !== this.userInfo) {
+            const url = '/api/user/updateInfos';
+            axios.post(`${url}?account=${this.currentData.account}&mail=${this.currentData.mail}&name=${this.currentData.name}&sex=${this.currentData.sex}`, {
+
+            }, {
+                headers: {
+                    'verifyCode': '2024'
+                }
+            }).then((res) => {
+                if (res.status == 200) {
+                    this.$message({
+                        type: 'success',
+                        message: '修改成功！'
+                    });
+                    this.UpdateAccountDialog = false
+                }
+            })
+        }
+    },
+    openNewAccountDialog(){
+        this.NewAccountDialog = true
+    },
+        AddMem(){
+            if(this.AddMember.name == '') {
+                this.$message({
+                    message: '请输入用户名',
+                    type: 'warning'
+                })
+                return
+            } else if(this.AddMember.sex == '') {
+                this.$message({
+                    message: '请选择性别',
+                    type: 'warning'
+                })
+                return
+            
+            } else if(this.AddMember.mail == '') {
+                this.$message({
+                    message: '请输入邮箱',
+                    type: 'warning'
+                })
+                return
+            } else if(this.AddMember.type == '') {
+                this.$message({
+                    message: '请选择身份',
+                    type: 'warning'
+                })
+                return
+            } else if(this.AddMember.account == '') {
+                this.$message({
+                    message: '请输入手机号',
+                    type: 'warning'
+                })
+                return
+            }else{
+                console.log(this.AddMember)
+            const url = '/api/user/create'
+            axios.post(`${url}?account=${this.AddMember.account}&pwd=${this.AddMember.pwd}&type=${this.AddMember.type}`,{
+        
+            },
+            {
+            headers: {
+                'verifyCode': '2024'
+            }
+        }).then((res) => {
+            if(res.status == 200) {
+                
+                const url='/api/user/updateInfos'
+            axios.post(`${url}?account=${this.AddMember.account}&mail=${this.AddMember.mail}&name=${this.AddMember.name}&sex=${this.AddMember.sex}`,{
+        
+            },
+            {
+            headers: {
+                'verifyCode': '2024'
+            }
+        }).then((res) => {
+            if(res.status == 200) {
+                this.$message({
+                    // distinguishCancelAndClose: true,
+                    type: 'success',
+                    message: '添加成功!'
+                });
+                this.NewAccountDialog = false
+            }
+        })
+            }
+        })
+            }
+       
+        }
+
+        
     }
 }
 </script>
-
-<style>
-@media screen and (max-width: 768px) {
-    .el-dialog {
-        width: 96%;
-    }
-}
-</style>
