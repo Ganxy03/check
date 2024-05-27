@@ -137,8 +137,8 @@ export default {
         return {
             roomNum: {
                 total: 113,
-                E: 0,
-                W: 0,
+                E: 58,
+                W: 25,
                 JF: 7,
                 J: 11,
                 G: 11

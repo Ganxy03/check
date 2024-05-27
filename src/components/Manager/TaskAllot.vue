@@ -97,7 +97,7 @@ export default {
     },
     methods: {
         getInspector() {
-            const url = '/api/user/getAll'
+            const url = '/api/manager/getAllAccount'
             axios.post(url, {}, {
                 headers: {
                     'verifyCode': '2024'

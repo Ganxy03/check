@@ -78,7 +78,7 @@ export default {
     },
     created() {
         // this.getAllSort()
-        // this.getAllItem()
+        this.getAll()
     },
     methods: {
         developing() {
@@ -93,9 +93,9 @@ export default {
         openNewRoomDialog() {
             this.NewRoomDialog = true
         },
-        getAllItem() {
+        getAll() {
             // /roomItem/getAllItem
-            const url = '/api/roomItem/getAllItem'
+            const url = '/api/room/getAllRoom'
             axios.post(url,{
 
                 },

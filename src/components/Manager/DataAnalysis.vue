@@ -7,10 +7,10 @@
                     <el-statistic
                     :title="item.type">
                     <template slot="formatter">
-                        <span v-if="item.type === '检查人员'">{{ item.nums }}<small><br><span class="cp" @click="ToLink('/manager/member')" style="color: #64AAF5;font-size: 11px">管理</span></small></span>
-                        <span v-if="item.type === '维保人员'">{{ item.nums }} / {{ DataType[1].nums }}<small><br><span class="cp" @click="ToLink('/manager/clockIn')" style="color: #64AAF5;font-size: 11px">管理</span></small></span>
+                        <span v-if="item.type === '检查人员'">{{ DataType[1].nums }} / {{ allPeopleNum }}<small><br><span class="cp" @click="ToLink('/manager/member')" style="color: #64AAF5;font-size: 11px">管理</span></small></span>
+                        <span v-if="item.type === '维保人员'">{{ DataType[2].nums }} / {{ allPeopleNum }}<small><br><span class="cp" @click="ToLink('/manager/clockIn')" style="color: #64AAF5;font-size: 11px">管理</span></small></span>
                         <span v-if="item.type === '检查记录'">{{ item.nums }} / {{ allInspectNums }}<br><small style="font-size: 11px">(今/总)<span class="cp" @click="ToLink('/manager/inspectRecord')" style="color: #64AAF5">详情</span></small></span>
-                        <span v-if="item.type === '问题记录'">{{ item.nums }} / {{ allProblemNums }}<br><small style="font-size: 11px">(今/总)<span class="cp" @click="ToLink('/manager/problemRecord')" style="color: #64AAF5">详情</span></small></span>
+                        <span v-if="item.type === '请假记录'">{{ item.nums }} / {{ allProblemNums }}<br><small style="font-size: 11px">(今/总)<span class="cp" @click="ToLink('/manager/problemRecord')" style="color: #64AAF5">详情</span></small></span>
     
                         <span v-if="item.type === '教室'">{{ item.nums }}</span>
                         <i @click="openQuestion" v-if="item.type == '教室'" class="el-icon-question" style="font-size: 14px"></i>
@@ -33,6 +33,7 @@ export default {
             fullscreenLoading: false,
             allInspectNums: 0,
             allProblemNums: 0,
+            allPeopleNum: 0,
             DataType: [
                 {
                     type: '教室',
@@ -51,7 +52,7 @@ export default {
                     nums: 0
                 },
                 {
-                    type: '问题记录',
+                    type: '请假记录',
                     nums: 0
                 }
             ],
@@ -59,13 +60,32 @@ export default {
         }
     },
     created() {
-        // this.getAllAccount()
+        this.getAllAccount()
+        this.getAllRoom()
         // this.getAllSort()
         // this.getAllRecord()
         // this.getAllProblem()
         // this.getAllInspect()
     },
     methods: {
+        getAllRoom() {
+            const url = '/api/room/getAllRoom'
+            axios.post(url, {}, {
+                headers: {
+                    'verifyCode': '2024'
+                }
+            }).then(res => {
+                // res.data.forEach(item => {
+                //     let total = 0
+                //     total = total + item.room
+                //     this.DataType[0].nums = total
+                // })
+                let total = res.data.reduce((accumulator, item) => {
+                    return accumulator + item.room;
+                }, 0);
+                this.DataType[0].nums = total
+            })
+        },
         getAllSort() {
             const url = '/api/roomItem/getAllSort'
             axios.post(url,{
@@ -88,7 +108,7 @@ export default {
             })
         },
         getAllAccount() {
-            const url = '/api/user-account/getAllAccount'
+            const url = '/api/manager/getAllAccount'
             axios.post(url,{
 
                 },
@@ -102,13 +122,18 @@ export default {
                     const AllAccount = res.data
                      // 初始化计数器
                     let count = 0;
+                    let count2 = 0;
                     // 遍历AllAccount中的userAccount数组，统计status为0的数量
                     AllAccount.forEach(account => {
-                        if(account.userAccount.status === 0) {
+                        if(account.role === 1) {
                             count++;
+                        } else if(account.role === 2) {
+                            count2++;
                         }
                     });
                     this.DataType[1].nums = count
+                    this.DataType[2].nums = count2
+                    this.allPeopleNum = count + count2
                     // console.log('status为0的数量为: ', count);
                 }
             })

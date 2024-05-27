@@ -48,11 +48,23 @@
                     :auto-upload="false"
                     :file-list="currentData.fileList"
                     list-type="picture"
-                    :limit="3"
-                    :before-upload="file => beforeUpload(file, currentData)">
-                        <el-button disabled type="text">
+                    :limit="1"
+                    :before-upload="file => beforeUpload(file)">
+                        <el-button type="text">
                             选择图片
                         </el-button>
+                        <template slot="file" slot-scope="{file}">
+                        <el-row>
+                            <el-col style="" :span="24">
+                                <img class="el-upload-list__item-thumbnail" :src="file.url" alt="">
+                                <span style="color: #409EFF;font-size: 13px;">{{file.name}}</span><br>
+                                <span @click="showFile(file)" style="color: #409EFF;font-size: 13px;cursor: pointer;">(点击查看)</span><br>
+                                <span @click="uploadFile(file)" v-if="file.status == 'ready'" style="color: #409EFF;cursor: pointer;">上传 </span>
+                                <span v-if="file.status == 'ready'" style="color: #409EFF;cursor: pointer;"> 移除</span>
+                                <span v-else style="color: #409EFF;">已上传</span>
+                            </el-col>
+                        </el-row>
+                    </template>
                     </el-upload>
                 </el-form-item>
             </el-form>
@@ -110,7 +122,7 @@ export default {
                 // },
             ],
             InspectDialog: false,
-            fileList: [],
+            // fileList: [],
             currentData: [],
         }
     },
@@ -118,9 +130,80 @@ export default {
         this.getTodayTask()
     },
     methods: {
-        // uploadFile() {
-        //     // const url = '/api/upload/uploadFile'
-        // },
+        async beforeUpload(file) {
+
+            const allowedExtensions = ['.jpeg', '.png', '.gif', '.bmp', '.webp', '.heic'];
+            const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+            
+            console.log("type: "+fileExtension)
+            if (!allowedExtensions.includes(fileExtension)) {
+                this.$message({
+                    message: 'Only JPEG, PNG, GIF, BMP, WebP, and HEIC files are allowed.',
+                    type: 'warning'
+                })
+                return false; // 返回 false 以阻止文件上传
+            }
+
+
+            const formData = new FormData();
+            // const fileExtension = file.name.substring(file.name.lastIndexOf('.'));
+            // const newFileName = room + fileExtension;
+            const newFileName = file.name
+
+            // console.log(fileExtension)
+            console.log(newFileName)
+            const blob = new Blob([file.raw], { type: fileExtension });
+            formData.append('file', blob, newFileName);
+
+            // console.log(formData)
+
+            const config = {
+                headers: {
+                    'verifyCode': '2024'
+                }
+            };
+
+            try {
+                const response = await axios.post('/api/upload/uploadFile', formData, config);
+                const uploadedPath = response.data;
+                const baseUrl = 'http://124.221.138.245:8899';
+                const relativePath = uploadedPath.replace(/\\/g, '/').replace('/www/wwwroot/Task/Upload/', '');
+                const fileUrl = `${baseUrl}/${relativePath}`;
+                console.log(fileUrl)
+                file.status = 'success'
+
+
+            } catch (error) {
+                console.error(error);
+                // 处理上传失败的逻辑
+            }
+        },
+        uploadFile(file) {
+            this.$confirm('确定上传' + file.name + ' 至 ' + this.currentData.room + ' 吗?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                callback: action => {
+                    if(action == 'confirm') {
+                        this.beforeUpload(file)
+                    }
+                }
+            });
+        },
+        showFile(file) {
+            // console.log(file)
+            const dialogImageUrl = file.url;
+            
+            // console.log(dialogImageUrl)
+            this.$alert('<img style="width: 100%;" src="'+ dialogImageUrl +'">', '查看', {
+                dangerouslyUseHTMLString: true,
+                callback: action => {
+                    if(action == 'comfirm') {
+                        // console.log('comfirm')
+                    }
+                }
+            });
+        },
         submit() {
             console.log(this.currentData)
             const url = '/api/room/inspect'
@@ -140,102 +223,6 @@ export default {
                     this.getTodayTask()
                 }
             })
-        },
-        showFile(file) {
-            // console.log(file)
-            const dialogImageUrl = file.url;
-            
-            // console.log(dialogImageUrl)
-            this.$alert('<img style="width: 100%;" src="'+ dialogImageUrl +'">', '查看', {
-                dangerouslyUseHTMLString: true,
-                callback: action => {
-                    if(action == 'comfirm') {
-                        // console.log('comfirm')
-                    }
-                }
-            });
-        },
-        removeFile() {
-            // console.log(file, item);
-            // const index = item.fileList.indexOf(file);
-
-            // if (index !== -1) {
-            // // 如果找到了要移除的文件，使用splice方法将其从fileList中删除
-            // item.fileList.splice(index, 1);
-            // this.$refs.uploadFile.abort()
-        },
-        async beforeUpload(file, item) {
-            const formData = new FormData();
-            const fileExtension = file.name.substring(file.name.lastIndexOf('.'));
-            const newFileName = item.room + fileExtension;
-
-            const blob = new Blob([file.raw], { type: file.type });
-            formData.append('file', blob, newFileName);
-
-            // console.log(formData)
-            
-            const config = {
-                headers: {
-                    'verifyCode': '2024'
-                }
-            };
-            
-            try {
-                const response = await axios.post('/api/inspect/uploadFile', formData, config);
-                // console.log(response)
-                const uploadedPath = response.data.split('File uploaded to: ')[1].trim();
-                const baseUrl = 'http://localhost:5024';
-                const relativePath = uploadedPath.replace(/\\/g, '/').replace('D:/APP/UploadTest/', '');
-                // eslint-disable-next-line
-                const fileUrl = `${baseUrl}/${relativePath}`;
-                // console.log(fileUrl)
-                // console.log(item.room)
-                const phone = localStorage.getItem('phone')
-                const url = '/api/inspect/record'
-                axios.post(`${url}?room=${item.room}&url=${fileUrl}&phone=${phone}`,{
-                    
-                    },
-                    {
-                    headers: {
-                        'verifyCode': '2024'
-                    }
-                }).then((res) => {
-                    if(res.status == 200) {
-                        this.$message({
-                            message: '上传成功',
-                            type: 'success'
-                        })
-                        item.fileList.push({
-                            name: item.room,
-                            url: file.url,
-                            isUpload: true
-                        });
-                    }
-                })
-
-                // item.fileList.push({
-                //     name: item.room,
-                //     url: file.url,
-                //     isUpload: true
-                // });
-            } catch (error) {
-                console.error(error);
-                // 处理上传失败的逻辑
-            }
-        },
-        uploadFile(file, item) {
-            // console.log(file)
-            // console.log(item)
-            this.$confirm('确定上传' + file.name + ' 吗?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning',
-                callback: action => {
-                    if(action == 'confirm') {
-                        this.beforeUpload(file, item)
-                    }
-                }
-            });
         },
         getTodayTask() {
             this.fullscreenLoading = true
@@ -258,6 +245,7 @@ export default {
         inspectBtn(item) {
             // console.log(item)
             this.currentData = item
+            this.currentData.fileList = []
             this.InspectDialog = true
         }
     }

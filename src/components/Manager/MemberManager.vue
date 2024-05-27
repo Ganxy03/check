@@ -5,10 +5,10 @@
         <!-- <span style="float: left;font-size: 11px;font-weight: 400"><span @click="BackToHome" class="cp" style="color: #64aaf5">&lt; 返回</span></span> -->
         <el-breadcrumb style="font-size: 11px;" separator="/">
         <el-breadcrumb-item :to="{ path: '/manager' }"><span style="color: #64aaf5;font-weight: 400;">&lt;返回</span></el-breadcrumb-item>
-        <el-breadcrumb-item>成员管理</el-breadcrumb-item>
+        <el-breadcrumb-item>检察员管理</el-breadcrumb-item>
         </el-breadcrumb>
 
-        <h2>成员管理</h2>
+        <h2>检察员管理</h2>
 
         <MemberTable />
 

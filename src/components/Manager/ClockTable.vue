@@ -11,7 +11,8 @@
             </el-select>
             <div>
                 <!-- <el-button disabled size="mini">一键生图</el-button> -->
-                <el-button @click="exportExcel" size="mini">导出数据</el-button>
+                <!-- <el-button @click="exportExcel" size="mini">导出数据</el-button> -->
+                <el-button @click="addUser">添加</el-button>
             </div>
         </div>
         <!-- <el-button style="float: right;" size="mini">添加</el-button> -->
@@ -20,12 +21,24 @@
             :data="filteredTableData"
             height="70vh">
             <el-table-column
-            prop="phone"
+            prop="name"
             label="姓名">
             </el-table-column>
             <el-table-column
-            prop="time"
-            label="打卡时间">
+            prop="mail"
+            label="邮箱">
+            </el-table-column>
+            <el-table-column
+            prop="sex"
+            label="性别">
+            </el-table-column>
+            <el-table-column
+            label="身份">
+            <span>维保员</span>
+            </el-table-column>
+            <el-table-column
+            prop="account"
+            label="手机号">
             </el-table-column>
             <el-table-column
             label="操作">
@@ -39,7 +52,7 @@
 </template>
 
 <script>
-// import axios from 'axios'
+import axios from 'axios'
 import { exportExcel } from '.././../utils/index'
 export default {
     data() {
@@ -66,9 +79,28 @@ export default {
         },
     },
     created() {
-        
+        this.getAll()
     },
     methods: {
+        addUser() {
+
+        },
+        getAll() {
+            const url = '/api/manager/getAllAccount'
+            axios.post(url,{},{
+                headers: {
+                    'verifyCode': '2024'
+                }
+            }).then((res) => {
+                if(res.status == 200) {
+                    // this.userInfo = res.data
+                    // console.log(this.userInfo)
+                    this.ClockRecord = res.data.filter(item => {
+                        return item.role == '2'
+                    })
+                }
+            })
+        },
         parseLocalDateTime(localDateTimeStr) {
             let dateTimeParts = localDateTimeStr.split(' ');
             let dateParts = dateTimeParts[0].split(':');

@@ -28,6 +28,11 @@
             prop="role"
             label="身份"
             :formatter="roleFormatter">
+            <template>
+                <!-- <el-tag type="warning" v-if="scope.row == 0">管理员</el-tag>
+                <el-tag v-if="scope.row.role == 1">检查员</el-tag>
+                <el-tag type="success" v-if="currentData.row.role == 2">维保员</el-tag> -->
+            </template>
             </el-table-column>
             <el-table-column
             prop="account"
@@ -191,8 +196,11 @@ export default{
                 }
             }).then((res) => {
                 if(res.status == 200) {
-                    this.userInfo = res.data
+                    // this.userInfo = res.data
                     // console.log(this.userInfo)
+                    this.userInfo = res.data.filter(item => {
+                        return item.role == '1'
+                    })
                 }
             })
         },

@@ -41,7 +41,7 @@ export default {
     methods: {
         TolinkLiveServer() {
             // this.$router.push('http://localhost:5024')
-            window.location.href = 'http://localhost:5024';
+            window.location.href = 'http://124.221.138.245:8899';
         },
         getAccountName() {
             const url = '/api/user-account/getInfo'
