@@ -48,6 +48,30 @@
             </template>
             </el-table-column>
         </el-table>
+        <el-dialog title="添加成员" :visible.sync="NewUserDialog">
+            <el-form :model="AddUser"  label-width="80px">
+                <el-form-item label="姓名">
+                    <el-input maxlength="5" v-model="AddUser.name" placeholder="请输入姓名" ></el-input>
+                </el-form-item>
+                <el-form-item label="性别">
+                    <el-radio v-model="AddUser.sex" label="男">男</el-radio>
+                    <el-radio v-model="AddUser.sex" label="女">女</el-radio>
+                </el-form-item>
+                <el-form-item label="邮箱">
+                    <el-input v-model="AddUser.mail" maxlength="13" placeholder="请输入邮箱" ></el-input>
+                </el-form-item>
+                <el-form-item label="身份">
+                    <el-radio v-model="AddUser.type" label="2">维保员</el-radio>
+                </el-form-item>
+                <el-form-item label="手机号">
+                    <el-input maxlength="11" v-model="AddUser.account" placeholder="请输入手机号" ></el-input>
+                    <p style="font-size: 11px;margin: 0;height: 20px;line-height: 20px;">注意: 手机将做为登陆的账号 请务必准确</p>
+                </el-form-item>
+                <div style="display: flex;justify-content: end;">
+                    <el-button @click="AddReturn">完成</el-button>
+                </div>
+            </el-form>
+        </el-dialog>
     </div>
 </template>
 
@@ -58,6 +82,7 @@ export default {
     data() {
         return {
             fullscreenLoading: false,
+            NewUserDialog:false,
             SelectDate: [
                 {
                     label: '在岗',
@@ -68,8 +93,16 @@ export default {
                     value: 'off'
                 }
             ],
+            AddUser:{
+                    name:'',
+                    sex:'',
+                    mail:'',
+                    account:'',
+                    type:'',
+                    pwd:'inc123456'
+                },
             selectDate: 'on',
-            ClockRecord: []
+            ClockRecord: [],
         }
     },
     computed: {
@@ -83,7 +116,7 @@ export default {
     },
     methods: {
         addUser() {
-
+            this.NewUserDialog = true
         },
         getAll() {
             const url = '/api/manager/getAllAccount'
@@ -111,7 +144,74 @@ export default {
         
         exportExcel() {
             exportExcel(this.$refs.excelTable, "测试测试", "测试.xlsx");
+        },
+        AddReturn(){
+            if(this.AddUser.name == '') {
+                this.$message({
+                    message: '请输入用户名',
+                    type: 'warning'
+                })
+                return
+            } else if(this.AddUser.sex == '') {
+                this.$message({
+                    message: '请选择性别',
+                    type: 'warning'
+                })
+                return
+            
+            } else if(this.AddUser.mail == '') {
+                this.$message({
+                    message: '请输入邮箱',
+                    type: 'warning'
+                })
+                return
+            } else if(this.AddUser.type == '') {
+                this.$message({
+                    message: '请选择身份',
+                    type: 'warning'
+                })
+                return
+            } else if(this.AddUser.account == '') {
+                this.$message({
+                    message: '请输入手机号',
+                    type: 'warning'
+                })
+                return
+            }else{
+                console.log(this.AddUser)
+            const url = '/api/user/create'
+            axios.post(`${url}?account=${this.AddUser.account}&pwd=${this.AddUser.pwd}&type=${this.AddUser.type}`,{
+        
+            },
+            {
+            headers: {
+                'verifyCode': '2024'
+            }
+        }).then((res) => {
+            if(res.status == 200) {
+                const url='/api/user/updateInfos'
+            axios.post(`${url}?account=${this.AddUser.account}&mail=${this.AddUser.mail}&name=${this.AddUser.name}&sex=${this.AddUser.sex}`,{
+        
+            },
+            {
+            headers: {
+                'verifyCode': '2024'
+            }
+        }).then((res) => {
+            if(res.status == 200) {
+                this.$message({
+                    type: 'success',
+                    message: '添加成功!'
+                });
+                this.NewUserDialog = false
+            }
+        })
+            }
+        })
+            }
+       
         }
+
     }
 }
 </script>

@@ -1,10 +1,10 @@
 <template>
     <div v-loading.fullscreen.lock="fullscreenLoading" style="height: calc(70vh - 100px);">
       <div>
-        <el-alert
+        <!-- <el-alert
           title="因为数据处理比较繁冗 所以响应会有些慢"
           type="info">
-        </el-alert>
+        </el-alert> -->
         <el-select style="float: left;" v-model="selectDate" placeholder="请选择">
           <el-option
           v-for="item in SelectDate"

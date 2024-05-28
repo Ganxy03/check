@@ -113,9 +113,9 @@
                     <!-- <el-input maxlength="13" placeholder="请输入班级" ></el-input> -->
                 <!-- </el-form-item> -->
                 <el-form-item label="身份">
-                    <el-radio v-model="AddMember.type" label="0">管理员</el-radio>
+                    <!-- <el-radio v-model="AddMember.type" label="0">管理员</el-radio> -->
                     <el-radio v-model="AddMember.type" label="1">检查员</el-radio>
-                    <el-radio v-model="AddMember.type" label="2">维保员</el-radio>
+                    <!-- <el-radio v-model="AddMember.type" label="2">维保员</el-radio> -->
                 </el-form-item>
                 <el-form-item label="手机号">
                     <el-input maxlength="11" v-model="AddMember.account" placeholder="请输入手机号" ></el-input>

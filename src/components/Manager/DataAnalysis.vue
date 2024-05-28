@@ -9,7 +9,7 @@
                     <template slot="formatter">
                         <span v-if="item.type === '检查人员'">{{ DataType[1].nums }} / {{ allPeopleNum }}<small><br><span class="cp" @click="ToLink('/manager/member')" style="color: #64AAF5;font-size: 11px">管理</span></small></span>
                         <span v-if="item.type === '维保人员'">{{ DataType[2].nums }} / {{ allPeopleNum }}<small><br><span class="cp" @click="ToLink('/manager/clockIn')" style="color: #64AAF5;font-size: 11px">管理</span></small></span>
-                        <span v-if="item.type === '检查记录'">{{ item.nums }} / {{ allInspectNums }}<br><small style="font-size: 11px">(今/总)<span class="cp" @click="ToLink('/manager/inspectRecord')" style="color: #64AAF5">详情</span></small></span>
+                        <span v-if="item.type === '检查记录'">{{ item.nums }} / {{ allTodayInspectNum }}<br><small style="font-size: 11px">(今/总)<span class="cp" @click="ToLink('/manager/inspectRecord')" style="color: #64AAF5">详情</span></small></span>
                         <span v-if="item.type === '请假记录'">{{ item.nums }} / {{ allProblemNums }}<br><small style="font-size: 11px">(今/总)<span class="cp" @click="ToLink('/manager/problemRecord')" style="color: #64AAF5">详情</span></small></span>
     
                         <span v-if="item.type === '教室'">{{ item.nums }}</span>
@@ -34,6 +34,7 @@ export default {
             allInspectNums: 0,
             allProblemNums: 0,
             allPeopleNum: 0,
+            allTodayInspectNum: 0,
             DataType: [
                 {
                     type: '教室',
@@ -64,8 +65,8 @@ export default {
         this.getAllRoom()
         // this.getAllSort()
         // this.getAllRecord()
-        // this.getAllProblem()
-        // this.getAllInspect()
+        this.getAllProblem()
+        this.getAllInspect()
     },
     methods: {
         getAllRoom() {
@@ -200,7 +201,7 @@ export default {
             this.$router.push(url)
         },
         getAllInspect() {
-            const url = '/api/inspect/getAll'
+            const url = '/api/room/getAllInspect'
             axios.post(url,{
                 
                 },
@@ -211,17 +212,16 @@ export default {
             }).then((res) => {
                 if(res.status == 200) {
                     // console.log("res.data:"+res.data)
-                    const num = res.data.length
+                    this.allTodayInspectNum = res.data.length
                     // console.log("inspect:"+num)
-                    this.allInspectNums = num
-
-
-
+                    
                     let startDate = new Date();
                     let endDate = new Date();
 
                     startDate.setHours(0, 0, 0, 0);
                     endDate.setHours(23, 59, 59, 999);
+
+
                     // console.log(res.data)
                     let filteredData = res.data.filter(item => {
                         let itemDate = this.parseLocalDateTime2(item.time);
@@ -234,7 +234,7 @@ export default {
             })
         },
         getAllProblem() {
-            const url = '/api/problem/getAll'
+            const url = '/api/user/getAllVacate'
             axios.post(url,{
                 
                 },
@@ -245,9 +245,10 @@ export default {
             }).then((res) => {
                 if(res.status == 200) {
                     // console.log("res.data:"+res.data)
-                    const num = res.data.length
+                    // const num = res.data.length
                     // console.log("problem:"+num)
-                    this.allProblemNums = num
+                    // this.allProblemNums = num
+                    this.allProblemNums = res.data.length
 
                     
 
