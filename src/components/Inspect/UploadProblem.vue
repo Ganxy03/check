@@ -1,9 +1,9 @@
 <template>
     <div style="height: calc(70vh - 100px);">
-        <el-alert
+        <!-- <el-alert
             title="因为数据处理比较繁冗 所以响应会有些慢"
             type="info">
-        </el-alert>
+        </el-alert> -->
         <el-row>
             <el-col :span="24">
                 <el-select style="width: 100%;" v-model="areaValue" placeholder="请选择">

@@ -172,6 +172,7 @@ export default {
                 console.log(fileUrl)
                 file.status = 'success'
 
+                this.currentData.evidence = fileUrl
 
             } catch (error) {
                 console.error(error);
@@ -205,7 +206,7 @@ export default {
             });
         },
         submit() {
-            console.log(this.currentData)
+            // console.log(this.currentData)
             const url = '/api/room/inspect'
             axios.post(`${url}?room=${this.currentData.room}&sweep=${this.currentData.sweep}&scope=${this.currentData.score}&mark=${this.currentData.mark}&evidence=${this.currentData.evidence}&inspector=${localStorage.getItem('account')}`,{
                 },

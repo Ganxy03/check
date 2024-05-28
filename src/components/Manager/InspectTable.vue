@@ -1,10 +1,10 @@
 <template>
   <div v-loading.fullscreen.lock="fullscreenLoading" style="height: calc(70vh - 100px);">
     <div>
-      <el-alert
+      <!-- <el-alert
         title="因为数据处理比较繁冗 所以响应会有些慢"
         type="info">
-      </el-alert>
+      </el-alert> -->
       <el-select style="float: left;" v-model="selectDate" placeholder="请选择">
         <el-option
         v-for="item in SelectDate"
@@ -21,7 +21,7 @@
       ref="excelTable"
       height="50vh"
       row-key="id"
-      :data="filteredTableData"
+      :data="filteredData"
       :header-cell-style="{
         textAlign: 'center',
         background: 'rgba(0, 103, 214, 0.1)',
@@ -31,101 +31,39 @@
       highlight-current-row
       :span-method="objectSpanMethod">
       <el-table-column
-        label="文件夹"
-        min-width="15%"
-        show-overflow-tooltip>
-        <template slot-scope="scope">
-          <!--如果文件夹名称不为空-->
-          <template v-if="scope.row.folderName !== ''">
-            <!--如果文件夹下的内容是空的，那么也要显示:文件夹名(0)，只不过没有子元素而已-->
-            <template v-if="scope.row.children.length == 0">
-              <i
-                :class="changeFx ? 'el-icon-arrow-right' : 'el-icon-arrow-down'"
-                :style="{
-                  width: '20px',
-                  height: '20px',
-                  fontSize: '12px',
-                  cursor: 'pointer',
-                  color: '#333',
-                }"
-                @click="changeArrow"
-              ></i>
-              <i class="el-icon-folder"></i>
-              <span style="margin-left: 10px">{{scope.row.folderName}}</span>
-              <span style="margin-left: 10px; color: #b6b6b6">({{ scope.row.children.length }})</span
-              >
-            </template>
-            <template v-else>
-              <i class="el-icon-folder"></i>
-              <span style="margin-left: 10px">{{scope.row.folderName}}</span>
-              <span style="margin-left: 10px; color: #b6b6b6">({{ scope.row.children.length }})</span>
-            </template>
-          </template>
-        </template>
-      </el-table-column>
-      <el-table-column
-        label="教室"
-        prop="resourceName"
-        min-width="16%"
-        show-overflow-tooltip
-      >
-      </el-table-column>
-      <el-table-column
-        prop="modifyTime"
-        label="创建时间"
-        min-width="23%"
-        show-overflow-tooltip
-      >
-      </el-table-column>
-      <el-table-column
-        prop="operate"
-        label="操作"
-        min-width="16%"
-        show-overflow-tooltip
-      >
-        <template slot-scope="scope">
-          <!--如果文件名称不为空-->
-          <template v-if="!(parseInt(scope.row.resourceName) > 0)">
-            <el-button
-              @click="handleView(scope.row)"
-              type="text"
-              size="small"
-              title="预览"
-              ><i class="el-icon-folder-opened"></i></el-button>
-            <el-button
-              @click="handleDelete(scope.row)"
-              id="btn"
-              type="text"
-              size="small"
-              title="删除"
-              ><i class="el-icon-delete"></i></el-button>
-          </template>
-          <!--否则预览、删除按钮图标禁用（或者不展示也行）-->
-          <template v-else>
-            <el-button
-              @click="handleView(scope.row)"
-              type="text"
-              size="small"
-              title="预览"
-              disabled
-              ><i class="el-icon-folder-opened"></i></el-button>
-            <el-button
-              id="btn"
-              @click="handleDelete(scope.row)"
-              type="text"
-              size="small"
-              title="删除"
-              disabled
-              ><i class="el-icon-delete"></i></el-button>
-          </template>
-        </template>
-      </el-table-column>
-      <el-table-column
+        prop="inspector"
         label="预览区"
         min-width="30%"
         show-overflow-tooltip
         fixed="right"
       >
+      </el-table-column>
+      <el-table-column
+        prop="room"
+        label="教室"
+        min-width="30%"
+        show-overflow-tooltip
+        fixed="right"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="score"
+        label="打分"
+        min-width="30%"
+        show-overflow-tooltip
+        fixed="right"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="evidence"
+        label="附件"
+        min-width="30%"
+        show-overflow-tooltip
+        fixed="right"
+      >
+      <template slot-scope="scope">
+        <el-button @click="showImg(scope.row.evidence)" type="text" v-if="scope.row.evidence != 'undefined'">查看</el-button>
+      </template>
       </el-table-column>
     </el-table>
   </div>
@@ -190,7 +128,7 @@ export default {
       
   },
   computed: {
-    filteredTableData() {
+    filteredData() {
       // return this.ClockRecord.filter(item => item.time === this.selectDate);
       if (this.selectDate !== '') {
         let startDate = new Date();
@@ -213,14 +151,6 @@ export default {
             startDate.setHours(0, 0, 0, 0);
         }
         
-        // 根据startDate和endDate筛选数据
-        // let filteredData = this.tableData.filter(item => {
-        //     let children = item.children.filter(child => {
-        //         let modifyDate = new Date(child.modifyTime);
-        //         return modifyDate >= startDate && modifyDate <= endDate;
-        //     });
-        //     return children.length > 0; // 只返回包含符合条件子节点的父节点
-        // });
         // console.log("computed:"+this.tableData)
           let filteredData = this.tableData.filter(item => {
             let itemDate = new Date(item.time); //假设time的格式为'YYYY-MM-DD HH:mm:ss'
@@ -228,16 +158,34 @@ export default {
         });
         // console.log(filteredData)
         // return filteredData;
-        return this.parselData(filteredData)
+        return filteredData
       } else {
         return this.tableData;
       }
     },
   },
   created() {
-    // this.getAll()
+    this.getAll()
   },
   methods:{
+    showImg(url) {
+      console.log(url)
+      this.$alert('<img style="width: 200px;" src="'+ url +'"></img>', 'HTML 片段', {
+        dangerouslyUseHTMLString: true,
+        // callback: action => {
+        //   if(action == 'confirm' || action == 'cancel') {
+        //     done()
+        //   } 
+        // }
+        // eslint-disable-next-line
+        beforeClose: (action, done) => {
+          if (action === 'confirm' || action === 'cancel') {
+              // done();
+              this.$msgbox.close();
+          }
+        }
+      });
+    },
     parseLocalDateTime(localDateTimeStr) {
         let dateTimeParts = localDateTimeStr.split(' ');
         let dateParts = dateTimeParts[0].split(':');
@@ -245,44 +193,44 @@ export default {
         // 注意：这里假设年、月、日是以"年:月:日"的形式呈现，时间是以"小时:分钟:秒"的形式呈现
         return new Date(dateParts[0], dateParts[1] - 1, dateParts[2], timeParts[0], timeParts[1], timeParts[2]);
     },
-    parselData(data) {
-      const transformData = data.reduce((acc, curr) => {
-          const existing = acc.find(item => item.folderName === curr.sort);
+    // parselData(data) {
+    //   const transformData = data.reduce((acc, curr) => {
+    //       const existing = acc.find(item => item.folderName === curr.sort);
           
-          if (existing) {
-              existing.children.push({
-                  path: curr.url,
-                  modifyTime: curr.time,
-                  resourceName: curr.room,
-                  // id: `${existing.id}-${existing.children.length + 1}`,
-                  id: `${existing.id}-${existing.children.length + 1}`,
-                  folderName: ""
-              });
-              existing.resourceName = existing.children.length;
-          } else {
-              acc.push({
-                  path: curr.sort,
-                  children: [
-                      {
-                          path: curr.url,
-                          modifyTime: curr.time,
-                          resourceName: curr.room,
-                          // id: `${curr.id}-1`,
-                          id: `${acc.length + 1}-1`,
-                          folderName: ""
-                      }
-                  ],
-                  // resourceName: curr.id,
-                  resourceName: 1,
-                  id: acc.length + 1,
-                  folderName: curr.sort
-              });
-          }
-          return acc;
-      }, []);
-      // console.log("transformData:"+transformData)
-      return transformData
-    },
+    //       if (existing) {
+    //           existing.children.push({
+    //               path: curr.url,
+    //               modifyTime: curr.time,
+    //               resourceName: curr.room,
+    //               // id: `${existing.id}-${existing.children.length + 1}`,
+    //               id: `${existing.id}-${existing.children.length + 1}`,
+    //               folderName: ""
+    //           });
+    //           existing.resourceName = existing.children.length;
+    //       } else {
+    //           acc.push({
+    //               path: curr.sort,
+    //               children: [
+    //                   {
+    //                       path: curr.url,
+    //                       modifyTime: curr.time,
+    //                       resourceName: curr.room,
+    //                       // id: `${curr.id}-1`,
+    //                       id: `${acc.length + 1}-1`,
+    //                       folderName: ""
+    //                   }
+    //               ],
+    //               // resourceName: curr.id,
+    //               resourceName: 1,
+    //               id: acc.length + 1,
+    //               folderName: curr.sort
+    //           });
+    //       }
+    //       return acc;
+    //   }, []);
+    //   // console.log("transformData:"+transformData)
+    //   return transformData
+    // },
     handleView(row) {
       // console.log(row)
       this.tempImgUrl = row.path
@@ -330,7 +278,7 @@ export default {
     },
     getAll() {
       this.fullscreenLoading = true;
-      const url = '/api/inspect/getAll'
+      const url = '/api/room/getAllInspect'
       axios.post(url,{
           
           },
@@ -340,7 +288,7 @@ export default {
           }
       }).then((res) => {
           if(res.status == 200) {
-            // console.log("res.data:"+res.data)
+            console.log("res.data:"+res.data)
             this.tableData = res.data
             this.$message({
                 message: '查询成功',
