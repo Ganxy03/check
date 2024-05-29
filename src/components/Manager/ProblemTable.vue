@@ -1,10 +1,10 @@
 <template>
   <div v-loading.fullscreen.lock="fullscreenLoading" style="height: calc(70vh - 100px);">
     <div>
-      <el-alert
+      <!-- <el-alert
         title="因为数据处理比较繁冗 所以响应会有些慢"
         type="info">
-      </el-alert>
+      </el-alert> -->
       <el-select style="float: left;" v-model="selectDate" placeholder="请选择">
         <el-option
         v-for="item in SelectDate"
@@ -20,112 +20,44 @@
     <el-table
       ref="excelTable"
       height="50vh"
-      row-key="id"
-      :data="filteredTableData"
+      :data="tableData"
       :header-cell-style="{
         textAlign: 'center',
         background: 'rgba(0, 103, 214, 0.1)',
       }"
-      :cell-style="{ paddingLeft: '5%' }"
-      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-      highlight-current-row
-      :span-method="objectSpanMethod">
+      highlight-current-row>
       <el-table-column
-        label="文件夹"
-        min-width="15%"
-        show-overflow-tooltip>
-        <template slot-scope="scope">
-          <!--如果文件夹名称不为空-->
-          <template v-if="scope.row.folderName !== ''">
-            <!--如果文件夹下的内容是空的，那么也要显示:文件夹名(0)，只不过没有子元素而已-->
-            <template v-if="scope.row.children.length == 0">
-              <i
-                :class="changeFx ? 'el-icon-arrow-right' : 'el-icon-arrow-down'"
-                :style="{
-                  width: '20px',
-                  height: '20px',
-                  fontSize: '12px',
-                  cursor: 'pointer',
-                  color: '#333',
-                }"
-                @click="changeArrow"
-              ></i>
-              <i class="el-icon-folder"></i>
-              <span style="margin-left: 10px">{{scope.row.folderName}}</span>
-              <span style="margin-left: 10px; color: #b6b6b6">({{ scope.row.children.length }})</span
-              >
-            </template>
-            <template v-else>
-              <i class="el-icon-folder"></i>
-              <span style="margin-left: 10px">{{scope.row.folderName}}</span>
-              <span style="margin-left: 10px; color: #b6b6b6">({{ scope.row.children.length }})</span>
-            </template>
-          </template>
-        </template>
-      </el-table-column>
-      <el-table-column
-        label="教室"
-        prop="resourceName"
-        min-width="16%"
+        prop="time"
+        label="时间"
         show-overflow-tooltip
       >
       </el-table-column>
       <el-table-column
-        prop="modifyTime"
-        label="创建时间"
-        min-width="23%"
+        prop="account"
+        label="账号"
         show-overflow-tooltip
       >
       </el-table-column>
       <el-table-column
-        prop="operate"
+        prop="mark"
+        label="备注"
+        show-overflow-tooltip
+      >
+      </el-table-column>
+      <el-table-column
+        prop="status"
+        label="状态"
+        show-overflow-tooltip
+      >
+      </el-table-column>
+      <el-table-column
         label="操作"
-        min-width="16%"
-        show-overflow-tooltip
-      >
-        <template slot-scope="scope">
-          <!--如果文件名称不为空-->
-          <template v-if="!(parseInt(scope.row.resourceName) > 0)">
-            <el-button
-              @click="handleView(scope.row)"
-              type="text"
-              size="small"
-              title="预览"
-              ><i class="el-icon-folder-opened"></i></el-button>
-            <el-button
-              @click="handleDelete(scope.row)"
-              id="btn"
-              type="text"
-              size="small"
-              title="删除"
-              ><i class="el-icon-delete"></i></el-button>
-          </template>
-          <!--否则预览、删除按钮图标禁用（或者不展示也行）-->
-          <template v-else>
-            <el-button
-              @click="handleView(scope.row)"
-              type="text"
-              size="small"
-              title="预览"
-              disabled
-              ><i class="el-icon-folder-opened"></i></el-button>
-            <el-button
-              id="btn"
-              @click="handleDelete(scope.row)"
-              type="text"
-              size="small"
-              title="删除"
-              disabled
-              ><i class="el-icon-delete"></i></el-button>
-          </template>
-        </template>
-      </el-table-column>
-      <el-table-column
-        label="预览区"
-        min-width="30%"
         show-overflow-tooltip
         fixed="right"
       >
+      <template>
+        <el-button type="text">通过</el-button>
+      </template>
       </el-table-column>
     </el-table>
   </div>
@@ -235,7 +167,7 @@ export default {
     },
   },
   created() {
-    // this.getAll()
+    this.getAll()
   },
   methods:{
     parseLocalDateTime(localDateTimeStr) {
@@ -330,7 +262,7 @@ export default {
     },
     getAll() {
       this.fullscreenLoading = true;
-      const url = '/api/problem/getAll'
+      const url = '/api/user/getAllVacate'
       axios.post(url,{
           
           },
@@ -340,7 +272,7 @@ export default {
           }
       }).then((res) => {
           if(res.status == 200) {
-            // console.log("res.data:"+res.data)
+            // console.log(res.data)
             this.tableData = res.data
             this.$message({
                 message: '查询成功',
