@@ -1,5 +1,10 @@
 <template>
-    <el-select v-model="value" placeholder="请选择">
+    <div>
+      <el-select v-model="value" multiple
+    filterable
+    allow-create
+    @change="handSelect"
+    default-first-option placeholder="请选择">
       <el-option
         v-for="item in options"
         :key="item.id"
@@ -7,6 +12,10 @@
         :value="item.room">
       </el-option>
     </el-select>
+    <!-- <el-button @click="getSelectedOptions">获取选中的选项</el-button> -->
+
+    </div>
+    
   </template>
 <script>
 import axios from 'axios';
@@ -43,7 +52,13 @@ export default {
             this.options = result;
             // console.log(result);
         })
-    }
+    },
+    handSelect() {
+            localStorage.setItem('class', this.value);
+        },
+    getSelectedOptions() {
+    console.log(this.value); // 输出被选中的选项的值
+  }
   }
 }
 </script>

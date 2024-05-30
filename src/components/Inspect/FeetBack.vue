@@ -22,10 +22,10 @@
         <!-- <el-dialog title="问题上传" :visible.sync="ProblemDialog">
             <UploadProblem />
         </el-dialog> -->
-        <el-dialog title="问题记录" :visible.sync="ProblemRecordDialog">
+        <el-dialog title="请假记录" :visible.sync="ProblemRecordDialog">
             <ProblemTable />
         </el-dialog>
-        <el-dialog title="检查记录" :visible.sync="InspectRecordDialog">
+        <el-dialog title="请假记录" :visible.sync="InspectRecordDialog">
             <InspectTable />
         </el-dialog>
     </ul>

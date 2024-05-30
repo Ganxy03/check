@@ -5,23 +5,23 @@
         title="因为数据处理比较繁冗 所以响应会有些慢"
         type="info">
       </el-alert> -->
-      <el-select style="float: left;" v-model="selectDate" placeholder="请选择">
+      <!-- <el-select style="float: left;" v-model="selectDate" placeholder="请选择">
         <el-option
         v-for="item in SelectDate"
         :key="item.value"
         :label="item.label"
         :value="item.value">
         </el-option>
-      </el-select>
+      </el-select> -->
       <el-button @click="exportExcel" style="float: right;" size="mini">导出数据</el-button>
     </div>
     <!--当 row 中包含 children 字段时，被视为树形数据。渲染树形数据时，必须要指定 row-key。-->
     <!--通过指定 row 中的 hasChildren 字段来指定哪些行是包含子节点。children 与 hasChildren 都可以通过 tree-props 配置。-->
-    <el-table
+    <!-- <el-table
       ref="excelTable"
       height="50vh"
       row-key="id"
-      :data="filteredTableData"
+      :data="TableData"
       :header-cell-style="{
         textAlign: 'center',
         background: 'rgba(0, 103, 214, 0.1)',
@@ -34,11 +34,11 @@
         label="文件夹"
         min-width="15%"
         show-overflow-tooltip>
-        <template slot-scope="scope">
+        <template slot-scope="scope"> -->
           <!--如果文件夹名称不为空-->
-          <template v-if="scope.row.folderName !== ''">
+          <!-- <template v-if="scope.row.folderName !== ''"> -->
             <!--如果文件夹下的内容是空的，那么也要显示:文件夹名(0)，只不过没有子元素而已-->
-            <template v-if="scope.row.children.length == 0">
+            <!-- <template v-if="scope.row.children.length == 0">
               <i
                 :class="changeFx ? 'el-icon-arrow-right' : 'el-icon-arrow-down'"
                 :style="{
@@ -65,13 +65,13 @@
       </el-table-column>
       <el-table-column
         label="教室"
-        prop="resourceName"
+        prop="id"
         min-width="16%"
         show-overflow-tooltip
       >
       </el-table-column>
       <el-table-column
-        prop="modifyTime"
+        prop="mark"
         label="创建时间"
         min-width="23%"
         show-overflow-tooltip
@@ -83,9 +83,9 @@
         min-width="16%"
         show-overflow-tooltip
       >
-        <template slot-scope="scope">
+        <template slot-scope="scope"> -->
           <!--如果文件名称不为空-->
-          <template v-if="!(parseInt(scope.row.resourceName) > 0)">
+          <!-- <template v-if="!(parseInt(scope.row.resourceName) > 0)">
             <el-button
               @click="handleView(scope.row)"
               type="text"
@@ -99,9 +99,9 @@
               size="small"
               title="删除"
               ><i class="el-icon-delete"></i></el-button>
-          </template>
+          </template> -->
           <!--否则预览、删除按钮图标禁用（或者不展示也行）-->
-          <template v-else>
+          <!-- <template v-else>
             <el-button
               @click="handleView(scope.row)"
               type="text"
@@ -127,7 +127,114 @@
         fixed="right"
       >
       </el-table-column>
-    </el-table>
+    </el-table> -->
+    <!-- <el-table
+      ref="excelTable"
+      height="50vh"
+      row-key="id"
+      :data="tableData"
+      :header-cell-style="{
+        textAlign: 'center',
+        background: 'rgba(0, 103, 214, 0.1)',
+      }"
+      :cell-style="{ paddingLeft: '5%' }"
+      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+      highlight-current-row
+      :span-method="objectSpanMethod">
+      
+      <el-table-column
+        prop="account"
+        label="账户"
+       
+        show-overflow-tooltip
+        fixed="right"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="id"
+        label="id"
+       
+        show-overflow-tooltip
+        fixed="right"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="mark"
+        label="原因"
+        
+        show-overflow-tooltip
+        fixed="right"
+      >
+     
+      </el-table-column>
+      <el-table-column
+        prop="status"
+        label="地位"
+        
+        show-overflow-tooltip
+        fixed="right"
+      >
+      </el-table-column> -->
+      <!-- <el-table-column>
+            <template slot="header">
+                操作
+            </template>
+            <template slot-scope="scope">
+                <el-button  @click="auditProblem(scope.row)" type="text" size="small">审核</el-button>
+            </template>
+            </el-table-column> -->
+            <!-- <el-table-column
+            label="操作"
+            fixed="right"
+            
+            >
+            <template slot-scope="scope">
+              <el-button @click="auditProblem(scope.row)" type="text" size="small">审核</el-button>
+            </template>
+          </el-table-column>
+    </el-table> -->
+    <el-table
+      ref="excelTable"
+      height="80vh"
+      row-key="id"
+      :data="tableData"
+      :header-cell-style="{
+        textAlign: 'center',
+        background: 'rgba(0, 103, 214, 0.1)',
+      }"
+      :cell-style="{ paddingLeft: '5%' }"
+      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+      highlight-current-row
+      >
+    <el-table-column
+      fixed
+      prop="account"
+      label="账户">
+    </el-table-column>
+    
+    <el-table-column
+      prop="mark"
+      label="原因">
+    </el-table-column>
+    <el-table-column
+     prop="status"
+      label="状态"
+      :formatter="statusFormatter">
+      
+    </el-table-column>
+    <el-table-column
+      prop="time"
+      label="时间">
+    </el-table-column>
+    <el-table-column
+      
+      label="操作"
+      >
+      <template slot-scope="scope">
+        <el-button @click="auditProblem(scope.row)" type="text" size="small">审核</el-button>
+      </template>
+    </el-table-column>
+  </el-table>
   </div>
 </template>
 
@@ -139,25 +246,25 @@ export default {
     return {
         changeFx:false,
         tableData:[],
-        SelectDate: [
-            {
-                label: '今天',
-                value: 'today'
-            },
-            {
-                label: '昨天',
-                value: 'yestoday'
-            },
-            {
-                label: '过去一周',
-                value: 'lastWeek'
-            },
-            {
-                label: '过去一月',
-                value: 'lastMonth'
-            }
-        ],
-        selectDate: 'today',
+        // SelectDate: [
+        //     {
+        //         label: '今天',
+        //         value: 'today'
+        //     },
+        //     {
+        //         label: '昨天',
+        //         value: 'yestoday'
+        //     },
+        //     {
+        //         label: '过去一周',
+        //         value: 'lastWeek'
+        //     },
+        //     {
+        //         label: '过去一月',
+        //         value: 'lastMonth'
+        //     }
+        // ],
+        // selectDate: 'today',
         tempImgUrl: '',
         fullscreenLoading: false
     };
@@ -189,29 +296,29 @@ export default {
       // ];
       
   },
-  computed: {
-    filteredTableData() {
+  // computed: {
+    // filteredTableData() {
       // return this.ClockRecord.filter(item => item.time === this.selectDate);
-      if (this.selectDate !== '') {
-        let startDate = new Date();
-        let endDate = new Date();
+      // if (this.selectDate !== '') {
+      //   let startDate = new Date();
+      //   let endDate = new Date();
         
-        if (this.selectDate === 'today') {
-            startDate.setHours(0, 0, 0, 0);
-            endDate.setHours(23, 59, 59, 999);
-        } else if (this.selectDate === 'yestoday') {
-            startDate.setDate(startDate.getDate() - 1);
-            startDate.setHours(0, 0, 0, 0);
-            endDate.setDate(endDate.getDate() - 1);
-            endDate.setHours(23, 59, 59, 999);
-        } else if (this.selectDate === 'lastWeek') {
-            startDate.setDate(startDate.getDate() - 7);
-            startDate.setHours(0, 0, 0, 0);
-        } else if (this.selectDate === 'lastMonth') {
-            startDate.setMonth(startDate.getMonth() - 1);
-            startDate.setDate(1);
-            startDate.setHours(0, 0, 0, 0);
-        }
+      //   if (this.selectDate === 'today') {
+      //       startDate.setHours(0, 0, 0, 0);
+      //       endDate.setHours(23, 59, 59, 999);
+      //   } else if (this.selectDate === 'yestoday') {
+      //       startDate.setDate(startDate.getDate() - 1);
+      //       startDate.setHours(0, 0, 0, 0);
+      //       endDate.setDate(endDate.getDate() - 1);
+      //       endDate.setHours(23, 59, 59, 999);
+      //   } else if (this.selectDate === 'lastWeek') {
+      //       startDate.setDate(startDate.getDate() - 7);
+      //       startDate.setHours(0, 0, 0, 0);
+      //   } else if (this.selectDate === 'lastMonth') {
+      //       startDate.setMonth(startDate.getMonth() - 1);
+      //       startDate.setDate(1);
+      //       startDate.setHours(0, 0, 0, 0);
+        // }
         
         // 根据startDate和endDate筛选数据
         // let filteredData = this.tableData.filter(item => {
@@ -222,18 +329,18 @@ export default {
         //     return children.length > 0; // 只返回包含符合条件子节点的父节点
         // });
         // console.log("computed:"+this.tableData)
-          let filteredData = this.tableData.filter(item => {
-            let itemDate = new Date(item.time); //假设time的格式为'YYYY-MM-DD HH:mm:ss'
-            return itemDate >= startDate && itemDate <= endDate;
-        });
+        //   let filteredData = this.tableData.filter(item => {
+        //     let itemDate = new Date(item.time); //假设time的格式为'YYYY-MM-DD HH:mm:ss'
+        //     return itemDate >= startDate && itemDate <= endDate;
+        // });
         // console.log(filteredData)
         // return filteredData;
-        return this.parselData(filteredData)
-      } else {
-        return this.tableData;
-      }
-    },
-  },
+    //     return this.parselData(filteredData)
+    //   } else {
+    //     return this.tableData;
+    //   }
+    // },
+  // },
   created() {
     this.getAll()
   },
@@ -329,8 +436,8 @@ export default {
         }
     },
     getAll() {
-      this.fullscreenLoading = true;
-      const url = '/api/user/getAllVacate'
+      // this.fullscreenLoading = true;
+      const url = '/api/manager/getAllVacate'
       axios.post(url,{
           
           },
@@ -342,6 +449,7 @@ export default {
           if(res.status == 200) {
             // console.log("res.data:"+res.data)
             this.tableData = res.data
+            console.log(this.tableData)
             this.$message({
                 message: '查询成功',
                 type: 'success'
@@ -353,7 +461,74 @@ export default {
     },
     exportExcel() {
       exportExcel(this.$refs.excelTable, "检查记录", "检查记录.xlsx");
-    }
+    },
+    auditProblem(row) {
+            // console.log(row)
+            this.$confirm('是否审核通过?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '驳回',
+                type: 'warning',
+
+                callback: action => {
+                    if(action == 'confirm') {
+                        const url = '/api/manager/judgeVacate'
+                        // const phone = row.userInfo.phone
+                        axios.post(`${url}?account=${row.account}&status=1`,{
+        
+                            },
+                            {
+                            headers: {
+                                'verifyCode': '2024'
+                            }
+                        }).then((res) => {
+                            if(res.status == 200) {
+                                // console.log(res)
+                                
+                                this.$message({
+                                    type: 'success',
+                                    message: '审核成功!'
+                                });
+                                
+                            }
+                        })
+                    }
+                    if(action == 'cancel') {
+                        const url = '/api/manager/judgeVacate'
+                        // const phone = row.userInfo.phone
+                        axios.post(`${url}?account=${row.account}&status=2`,{
+        
+                            },
+                            {
+                            headers: {
+                                'verifyCode': '2024'
+                            }
+                        }).then((res) => {
+                            if(res.status == 200) {
+                                // console.log(res)
+                                
+                                this.$message({
+                                    type: 'success',
+                                    message: '已驳回!'
+                                });
+                                
+                            }
+                        })
+                    }
+                }
+            });
+        },
+        statusFormatter(row, column, cellValue) {
+        switch (row.status) {
+          case 0:
+            return '未审核';
+          case 1:
+            return '已审核';
+          case 2:
+            return '已驳回';
+          default:
+            return cellValue;
+        }
+      }
   },
 };
 </script>

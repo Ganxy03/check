@@ -8,7 +8,7 @@
         <el-breadcrumb-item>问题管理</el-breadcrumb-item>
         </el-breadcrumb>
 
-        <h2>问题记录</h2>
+        <h2>请假记录</h2>
         
         <PerblemTable />
     </div>

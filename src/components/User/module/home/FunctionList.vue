@@ -89,9 +89,33 @@ export default {
                 cancelButtonText: '取消',
                 // eslint-disable-next-line
                 beforeClose: (action, instance, done) => {
-                    if (action === 'confirm' || action === 'cancel') {
+                    if ( action === 'cancel') {
                         // done();
                         this.$msgbox.close();
+                    }
+                    if (action === 'confirm') {
+                       
+                                    const url = '/api/user/applyLinkRoom'
+                                    const account = localStorage.getItem('account');
+                                    const getclass = localStorage.getItem('class');
+                                    axios.post(`${url}?account=${account}&rooms=${getclass}`,{
+                                            
+                                        },
+                                        {
+                                        headers: {
+                                            'verifyCode': '2024'
+                                        }
+                                    }).then((res) => {
+                                        if(res.status == 200) {
+                                            this.role = res.data.role
+                                            this.$message({
+                                                message: '申请成功',
+                                                type: 'success'
+                                            })
+                                        }
+                                    })
+                                
+                                    
                     }
                 }
             })
