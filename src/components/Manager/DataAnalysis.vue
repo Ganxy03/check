@@ -9,9 +9,10 @@
                     <template slot="formatter">
                         <span v-if="item.type === '检查人员'">{{ DataType[1].nums }} / {{ allPeopleNum }}<small><br><span class="cp" @click="ToLink('/manager/member')" style="color: #64AAF5;font-size: 11px">管理</span></small></span>
                         <span v-if="item.type === '维保人员'">{{ DataType[2].nums }} / {{ allPeopleNum }}<small><br><span class="cp" @click="ToLink('/manager/clockIn')" style="color: #64AAF5;font-size: 11px">管理</span></small></span>
-                        <span v-if="item.type === '检查记录'">{{ item.nums }} / {{ allTodayInspectNum }}<br><small style="font-size: 11px">(今/总)<span class="cp" @click="ToLink('/manager/inspectRecord')" style="color: #64AAF5">详情</span></small></span>
-                        <span v-if="item.type === '请假记录'">{{ item.nums }} / {{ allProblemNums }}<br><small style="font-size: 11px">(今/总)<span class="cp" @click="ToLink('/manager/problemRecord')" style="color: #64AAF5">详情</span></small></span>
-    
+
+                        <span v-if="item.type === '检查记录'">{{ DataType[3].nums }} / {{ allInspectNums }}<br><small style="font-size: 11px">(今/总)<span class="cp" @click="ToLink('/manager/inspectRecord')" style="color: #64AAF5">详情</span></small></span>
+                        <span v-if="item.type === '请假记录'">{{ DataType[4].nums }} / {{ allInspectNums }}<br><small style="font-size: 11px">(今/总)<span class="cp" @click="ToLink('/manager/problemRecord')" style="color: #64AAF5">详情</span></small></span>
+
                         <span v-if="item.type === '教室'">{{ item.nums }}</span>
                         <i @click="openQuestion" v-if="item.type == '教室'" class="el-icon-question" style="font-size: 14px"></i>
                     </template>
@@ -69,6 +70,27 @@ export default {
         this.getAllInspect()
     },
     methods: {
+        getAllInspect() {
+            const url = '/api/user/getAllVacate'
+            axios.post(url, {}, {
+                headers: {
+                    'verifyCode': '2024'
+                }
+            }).then(res => {
+                this.allInspectNums = res.data.length
+
+                let startDate = new Date();
+                let endDate = new Date();
+
+                startDate.setHours(0, 0, 0, 0);
+                endDate.setHours(23, 59, 59, 999);
+                let filteredData = res.data.filter(item => {
+                    let itemDate = this.parseLocalDateTime(item.time);
+                    return itemDate >= startDate && itemDate <= endDate;
+                })
+                this.DataType[4].nums = filteredData.length
+            })
+        },
         getAllRoom() {
             const url = '/api/room/getAllRoom'
             axios.post(url, {}, {

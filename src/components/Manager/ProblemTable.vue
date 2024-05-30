@@ -26,10 +26,7 @@
         textAlign: 'center',
         background: 'rgba(0, 103, 214, 0.1)',
       }"
-      :cell-style="{ paddingLeft: '5%' }"
-      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-      highlight-current-row
-      :span-method="objectSpanMethod">
+      highlight-current-row>
       <el-table-column
         label="文件夹"
         min-width="15%"
@@ -78,9 +75,8 @@
       >
       </el-table-column>
       <el-table-column
-        prop="operate"
-        label="操作"
-        min-width="16%"
+        prop="status"
+        label="状态"
         show-overflow-tooltip
       >
         <template slot-scope="scope"> -->
@@ -121,11 +117,13 @@
         </template>
       </el-table-column>
       <el-table-column
-        label="预览区"
-        min-width="30%"
+        label="操作"
         show-overflow-tooltip
         fixed="right"
       >
+      <template>
+        <el-button type="text">通过</el-button>
+      </template>
       </el-table-column>
     </el-table> -->
     <!-- <el-table
@@ -447,7 +445,7 @@ export default {
           }
       }).then((res) => {
           if(res.status == 200) {
-            // console.log("res.data:"+res.data)
+            // console.log(res.data)
             this.tableData = res.data
             console.log(this.tableData)
             this.$message({

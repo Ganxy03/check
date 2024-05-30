@@ -57,7 +57,7 @@
                         <el-row>
                             <el-col style="" :span="24">
                                 <img class="el-upload-list__item-thumbnail" :src="file.url" alt="">
-                                <span style="color: #409EFF;font-size: 13px;">{{file.name}}</span><br>
+                                <!-- <span style="color: #409EFF;font-size: 13px;">{{file.name}}</span><br> -->
                                 <span @click="showFile(file)" style="color: #409EFF;font-size: 13px;cursor: pointer;">(点击查看)</span><br>
                                 <span @click="uploadFile(file)" v-if="file.status == 'ready'" style="color: #409EFF;cursor: pointer;">上传 </span>
                                 <span v-if="file.status == 'ready'" style="color: #409EFF;cursor: pointer;"> 移除</span>
@@ -132,7 +132,7 @@ export default {
     methods: {
         async beforeUpload(file) {
 
-            const allowedExtensions = ['.jpeg', '.png', '.gif', '.bmp', '.webp', '.heic'];
+            const allowedExtensions = ['.jpg','.jpeg', '.png', '.gif', '.bmp', '.webp', '.heic'];
             const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
             
             console.log("type: "+fileExtension)
