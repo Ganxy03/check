@@ -34,7 +34,7 @@ export default {
     methods: {
         
         getAll() {
-            const url = '/api/user/getAllVacate'
+            const url = '/api/manager/getAllVacate'
             axios.post(url, {}, {
                 headers: {
                     'verifyCode': '2024'

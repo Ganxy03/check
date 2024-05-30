@@ -256,7 +256,7 @@ export default {
             })
         },
         getAllProblem() {
-            const url = '/api/user/getAllVacate'
+            const url = '/api/manager/getAllVacate'
             axios.post(url,{
                 
                 },
